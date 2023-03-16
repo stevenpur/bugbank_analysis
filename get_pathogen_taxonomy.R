@@ -19,9 +19,9 @@ tax2tree <- function(tax_tb) {
 }
 
 
-###############################
-# Assign taxonomy for Bugbank #
-###############################
+#############################
+# Bugbank --Assign taxonomy #
+#############################
 
 # input file
 species_tb_file <- "result/bugbank_species_cnt_16112021.tsv"
@@ -84,17 +84,53 @@ for (i in seq_len(length(pathogens))) {
 pathogen_taxonomy <- data.frame(do.call(rbind, search_results), stringsAsFactors = F)
 colnames(pathogen_taxonomy) <- c(tax_class, "origin_name")
 
-# turn the table into a species tree
-pathogen_tree <- tax2tree(pathogen_taxonomy)
-
-# write result of taxonomy assignment
 write.table(pathogen_taxonomy, "./bb_pathogen_taxonomy_13032023.tsv", sep = "\t", quote = F, col.names = T, row.names = F)
-saveRDS(pathogen_tree, "./sgss_pathogen_tax_tree_13032023.rds")
 
 
-###########################
-# Assign Taxonomy for HES #
-###########################
+###################################
+# Bugbank -- build a species tree #
+###################################
+
+# turn the taxonomy table into a tree (origin_name should not be included as a node in the species tree)
+tree_data <- pathogen_taxonomy
+tree_data$pathString <- map_chr(1:nrow(tree_data), function(i) {
+    row <- tree_data[i, tax_class]
+    row <- na.exclude(unlist(row))
+    paste0("life/", paste(c(paste0(names(row), ":", row)), collapse = "/"))
+})
+tax_tree <- as.Node(tree_data)
+
+# 1. add origin_names information to corresponding nodes
+# 2. add cumulative origin_names (including origin_names from all descendants)
+add_origin_name_info <- function(node) {
+    cum_origin_name <- NULL
+    if (node$pathString %in% tree_data$pathString) {
+        # this node has at least one origin_name, add this info to the node
+        origin_names <- tree_data$origin_name[which(tree_data$pathString == node$pathString)]
+        node$origin_name <- origin_names
+        node$cum_origin_name <- origin_names
+    }
+   if (!node$isLeaf) {
+        # if internal node, than cum_origin_names is origin_names + children_origin_names
+        for (child in node$children){
+            add_origin_name_info(child)
+            node$cum_origin_name <- c(node$cum_origin_name, child$cum_origin_name)
+        }
+    }
+}
+
+add_origin_name_info(tax_tree)
+
+# write result
+saveRDS(tax_tree, "./sgss_pathogen_tax_tree_13032023.rds")
+
+
+
+
+
+##########################
+# HES -- assign taxonomy #
+##########################
 
 # input file
 pathogen_icd10_desc_file <- "./icd10_pathogen_description_13032023.tsv"
@@ -152,6 +188,11 @@ for (i in 1:length(pathogens)) {
 # compile all pathogen taxonomy into a table
 pathogen_taxonomy <- data.frame(do.call(rbind, search_results), stringsAsFactors = F)
 colnames(pathogen_taxonomy) <- c(tax_class, "origin_name")
+
+# more exception handling
+pathogen_taxonomy$species[which(pathogen_taxonomy$species == "unidentified")] <- NA
+
+# write result to file
 write.table(pathogen_taxonomy, "./hes_pathogen_taxonomy_fromRaw_13032023.tsv", sep = "\t", quote = F, col.names = T, row.names = F)
 
 ################################
@@ -177,7 +218,7 @@ saveRDS(tax_tree, "./hes_pathogen_tax_tree_fromRaw_13032023.rds")
 
 # build a dictionary to map pathgoen to icd10
 path_to_icd10 <- list()
-for (i in 1:nrow(path_desc_raw)) {
+for (i in 1:nrow(pathogen_icd10_desc)) {
     pathogen <- pathogen_icd10_desc$org_name[i]
     icd10s <- strsplit(pathogen_icd10_desc$UKB_code[i], ",")[[1]]
     path_to_icd10[[pathogen]] <- unique(c(path_to_icd10[[pathogen]], icd10s))

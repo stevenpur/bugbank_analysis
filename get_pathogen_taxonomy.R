@@ -96,7 +96,11 @@ tree_data <- pathogen_taxonomy
 tree_data$pathString <- map_chr(1:nrow(tree_data), function(i) {
     row <- tree_data[i, tax_class]
     row <- na.exclude(unlist(row))
-    paste0("life/", paste(c(paste0(names(row), ":", row)), collapse = "/"))
+    if (length(row) == 0) {
+        # the organism is unknown (all NA in the taxonomy)
+        return("life:all_org")
+    }
+    paste0("life:all_org/", paste(c(paste0(names(row), ":", row)), collapse = "/"))
 })
 tax_tree <- as.Node(tree_data)
 
@@ -110,9 +114,9 @@ add_origin_name_info <- function(node) {
         node$origin_name <- origin_names
         node$cum_origin_name <- origin_names
     }
-   if (!node$isLeaf) {
+    if (!node$isLeaf) {
         # if internal node, than cum_origin_names is origin_names + children_origin_names
-        for (child in node$children){
+        for (child in node$children) {
             add_origin_name_info(child)
             node$cum_origin_name <- c(node$cum_origin_name, child$cum_origin_name)
         }
@@ -204,7 +208,11 @@ tree_data <- pathogen_taxonomy
 tree_data$pathString <- map_chr(1:nrow(tree_data), function(i) {
     row <- tree_data[i, tax_class]
     row <- na.exclude(unlist(row))
-    paste0("life/", paste(c(paste0(names(row), ":", row)), collapse = "/"))
+    if (length(row) == 0) {
+        # the organism is unknown (taxonomy assignment is all NA an all levels)
+        return("life:all_org")
+    }
+    paste0("life:all_org/", paste(c(paste0(names(row), ":", row)), collapse = "/"))
 })
 tax_tree <- as.Node(tree_data)
 
@@ -238,6 +246,17 @@ modify_tree <- function(node) {
     }
 
     # add cumulative and unique ICD10 info
+    node$cum_icd10 <- vector()
+    node$uni_icd10 <- vector()
+    if ("origin_name" %in% names(node)) {
+        # if this node is mapped to any origin_name:
+        # (a) add the icd10 of those origin_names into cum_icd10
+        # (b) uni_icd10 should be the icd10 of those origin_names minus all children icd10
+        for (origin_name in node$origin_name) {
+            node$cum_icd10 <- c(node$cum_icd10, path_to_icd10[[origin_name]])
+            node$uni_icd10 <- c(node$uni_icd10, path_to_icd10[[origin_name]])
+        }
+    }
 
     if (node$isLeaf) {
         # if it is a leaf node, add icd10 codes to both cumulative and unique icd10
@@ -245,32 +264,16 @@ modify_tree <- function(node) {
         if (!"origin_name" %in% names(node)) {
             stop(paste0("there is a leaf node that does not have at least one corresponding origin_name: ", node$pathString))
         }
-        # add icd10 codes for each origin_name corresponding to this leaf node
-        node$cum_icd10 <- vector()
-        node$uni_icd10 <- vector()
-        for (origin_name in node$origin_name) {
-            node$cum_icd10 <- unique(c(node$cum_icd10, path_to_icd10[[origin_name]]))
-            node$uni_icd10 <- unique(c(node$uni_icd10, path_to_icd10[[origin_name]]))
-        }
     } else {
-        node$cum_icd10 <- vector()
-        node$uni_icd10 <- vector()
-
         # not a leaf node, add all icd10 from children to cum_icd10
+        children_icd10 <- vector()
         for (child in node$children) {
-            node$cum_icd10 <- c(node$cum_icd10, modify_tree(child))
+            children_icd10 <- c(children_icd10, modify_tree(child))
         }
+        node$cum_icd10 <- unique(c(node$cum_icd10, children_icd10))
 
-        if ("origin_name" %in% names(node)) {
-            # if this node is mapped to any origin_name:
-            # (a) add the icd10 of those origin_names into cum_icd10
-            # (b) uni_icd10 should be the icd10 of those origin_names minus all children icd10
-            for (origin_name in node$origin_name) {
-                node$cum_icd10 <- c(node$cum_icd10, path_to_icd10[[origin_name]])
-                node$uni_icd10 <- c(node$uni_icd10, path_to_icd10[[origin_name]])
-            }
-            node$uni_icd10 <- setdiff(node$uni_icd10, node$cum_icd10)
-        }
+        # set unique icd10
+        node$uni_icd10 <- setdiff(node$uni_icd10, children_icd10)
     }
     return(node$cum_icd10)
 }

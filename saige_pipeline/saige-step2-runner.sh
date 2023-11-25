@@ -3,12 +3,11 @@
 #SBATCH -A bag.prj
 #SBATCH -p short
 #SBATCH -J step2-saige
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=4
 #SBATCH --array=1-1325
 
 #TMPDIR=/well/bag/clme1992/tmp
 #export TMPDIR
-o
 echo "SGE job ID: "$SLURM_JOB_ID
 echo "SGE task ID: "$SLURM_ARRAY_TASK_ID
 echo "Running on host: "$SLURM_JOB_NODELIST
@@ -16,7 +15,7 @@ echo "Output file: "$SLURM_JOB_NAME".o"$SLURM_JOB_ID"."$SLURM_ARRAY_TASK_ID
 echo "Script argument: "$1 $2 $3 $5
 
 # Limit multi-threading for the SGE environment
-export OMP_NUM_THREADS=$NSLOTS
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 # Stem (read from argument)
 STEM=$1
@@ -61,13 +60,25 @@ BGEN=${UKBDIR}/v3/imputation/ukb_imp_chr${CHR}_v3.bgen
 
 # Run SAIGE
 # -B ${TMP} --env TMPDIR=${TMP} ${SAIGEDIR}
+
+###################
+#cd $WDIR
+#if [ "$SCHR" = "$PAR1" ]; then
+#	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --minMAF=0  --minMAC=0  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT  --numLinesOutput=100  --IsOutputAFinCaseCtrl=TRUE --chrom=${CHR} --LOCO=FALSE
+#elif [ "$SCHR" = "$XCHR" ]; then
+#	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR}  ${SAIGEDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --rangestoIncludeFile=$BATCH  --minMAF=0  --minMAC=0  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT  --numLinesOutput=100  --IsOutputAFinCaseCtrl=TRUE --chrom=${CHR} --LOCO=FALSE
+#else
+#	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR}  ${SAIGEDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --rangestoIncludeFile=$BATCH  --minMAF=0  --minMAC=0  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT  --numLinesOutput=100  --IsOutputAFinCaseCtrl=TRUE --chrom=${CHR}
+#fi
+###################
+
 cd $WDIR
 if [ "$SCHR" = "$PAR1" ]; then
-	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --minMAF=0  --minMAC=0  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT  --numLinesOutput=100  --IsOutputAFinCaseCtrl=TRUE --chrom=${CHR} --LOCO=FALSE
+	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --minMAF=0  --minMAC=0.5  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT --chrom=${CHR} --LOCO=FALSE
 elif [ "$SCHR" = "$XCHR" ]; then
-	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR}  ${SAIGEDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --rangestoIncludeFile=$BATCH  --minMAF=0  --minMAC=0  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT  --numLinesOutput=100  --IsOutputAFinCaseCtrl=TRUE --chrom=${CHR} --LOCO=FALSE
+	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR}  ${SAIGEDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --rangestoIncludeFile=$BATCH  --minMAF=0  --minMAC=0.5  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT --chrom=${CHR} --LOCO=FALSE
 else
-	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR}  ${SAIGEDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --rangestoIncludeFile=$BATCH  --minMAF=0  --minMAC=0  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT  --numLinesOutput=100  --IsOutputAFinCaseCtrl=TRUE --chrom=${CHR}
+	time singularity run -B ${UKBDEDIR} -B ${UKBDIR} -B ${WDIR}  ${SAIGEDIR} step2_SPAtests.R  --bgenFile=$BGEN  --bgenFileIndex=${BGEN}.bgi  --rangestoIncludeFile=$BATCH  --minMAF=0  --minMAC=0.5  --sampleFile=$SAMP  --GMMATmodelFile=$GMMAT  --varianceRatioFile=$VARRAT  --SAIGEOutputFile=$OUT --chrom=${CHR}
 fi
 
 # Post-process

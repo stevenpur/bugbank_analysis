@@ -4,11 +4,12 @@
 # Run GWAS #
 ############
 # 22 August 2020
-
+library(tidyverse)
 ################
 # Data logging #
 ################
 # Every object in lg will be saved
+
 lg <- list()
 
 ######################
@@ -60,29 +61,32 @@ setwd(config$wrkdir)
 
 # Read hgi-stratify file
 print(config$wrkdir)
-strat_logfile <- paste0("./log.ukb41482.hgi-stratify.", lg$stem, ".rds")
+strat_logfile <- paste0("./log.ukb41482.gwas-stratify.", lg$stem, ".rds")
 strat <- readRDS(strat_logfile)
 lg$strat_names <- names(strat$n.cases[strat$n.cases >= 100])
 print("Not running the following strata due to small case counts (<100):")
 print(strat$n.cases[strat$n.cases < 100])
 
 # Log file
-lg$log.outfile <- paste0("log.ukb41482.bd.hgi-run-gwas.", lg$stem, ".rds")
+lg$log.outfile <- paste0("log.ukb41482.bd.run-gwas.", lg$stem, ".rds")
 
 ################
 # Run the GWAS #
 ################
-lg$cmds <- paste(
-    "env -i SGE_ROOT=/mgmt/uge/8.6.8 /mgmt/uge/8.6.8/bin/lx-amd64/qsub",
-    "-o", config$saige.stddir,
-    config$srcdir, "/pheno/hgi-saige-gwas.sh",
-    lg$stem,
-    lg$strat_names,
-    lg$ncores,
-    config$wrkdir,
-    lg$npcs,
-    config$srcdir
-)
+
+lg$cmds <- map_chr(lg$strat_names, function(strat) {
+    paste(
+        "sbatch",
+        "-o", paste0(config$saige.stddir, "/gwas_run_", lg$stem, ".", strat),
+        paste0(config$srcdir, "/saige_gwas.sh"),
+        lg$stem,
+        strat,
+        lg$ncores,
+        config$wrkdir,
+        lg$npcs,
+        config$srcdir
+    )
+})
 names(lg$cmds) <- lg$strat_names
 
 for (i in 1:length(lg$cmds)) {

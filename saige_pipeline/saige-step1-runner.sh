@@ -3,7 +3,6 @@
 #SBATCH -A bag.prj
 #SBATCH -p short
 #SBATCH -J step1-saige
-#SBATCH --cpus-per-task=1
 
 
 echo "SGE job ID: "$SLURM_JOB_ID
@@ -44,6 +43,8 @@ if [ -f ${OUTPREFIX}.rda -o -f ${OUTPREFIX}.varianceRatio.txt -o -f ${OUTPREFIX}
 fi
 #Check pca file exists
 if [ ! -f ${INFILE}.gz ]; then 
+
+    echo $INFILE
     echo "error: infile does not exist!"
     exit 1
 fi
@@ -63,5 +64,5 @@ if [ ! ${OUTPREFIX}.rda -o ! -f ${OUTPREFIX}.varianceRatio.txt -o ! -f ${OUTPREF
     echo "step1 result file not produced!"
     exit 1
 fi
-rm -f ${INFILE}
+#rm -f ${INFILE}
 

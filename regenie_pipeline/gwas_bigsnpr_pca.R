@@ -16,7 +16,7 @@ setwd(config$wrkdir)
 
 # Command-line arguments
 help <- paste(
-    "Usage: Rscript hgi-bigsnpr-pca.R stem stratum npcs ncores",
+    "Usage: Rscript gwas-bigsnpr-pca.R stem stratum npcs ncores",
     sep = "\n"
 )
 
@@ -66,7 +66,8 @@ lg$backingfile <- paste0(
 # Created by hgi-stratify.R
 lg$data_infile <- paste0("ukb41482.bd.gwas-stratify.", lg$stem, ".", lg$stratum, ".txt.gz")
 # Output file
-lg$data_outfile <- paste0("ukb41482.bd.gwas-bigsnpr-pca.", lg$stem, ".", lg$stratum, ".txt.gz")
+lg$data_covar_outfile <- paste0("ukb41482.bd.gwas-covar.", lg$stem, ".", lg$stratum, ".txt.gz")
+lg$data_pheno_outfile <- paste0("ukb41482.bd.gwas-pheno.", lg$stem, ".", lg$stratum, ".txt.gz")
 
 print(lg$data_infile)
 print(lg$data_outfile)
@@ -136,7 +137,7 @@ system.time((
         plink$genotypes,
         snp_scaleBinom(),
         ind.row = bed_include,
-        ind_col = ind_col,
+        ind.col = ind_col,
         verbose = FALSE,
         ncores = lg$ncores,
         k = lg$npcs
@@ -151,7 +152,11 @@ system.time((pcs <- predict(svd)))
 #  user  system elapsed
 # 0.026   0.009   0.035
 
-# Incorporate the PCs into the data
+# extract the phenotype files
+pheno <- data[, c("eid", "eid", "pheno")]
+colnames(pheno) <- c("FID", "IID", "pheno")
+
+# Incorporate the PCs into the covariate files
 data_pcs <- as.data.frame(
     matrix(NA, nrow(data),
         lg$npcs,
@@ -160,11 +165,30 @@ data_pcs <- as.data.frame(
 )
 data_pcs[match(plink$fam$sample.ID[bed_include], data$eid), ] <- pcs
 data <- cbind(data, data_pcs)
+data <- data[, c("eid", "eid", "age", "sex", paste0("pc", 1:lg$npcs))]
+colnames(data) <- c("FID", "IID", "age", "sex", paste0("pc", 1:lg$npcs))
+data$sex <- map_int(data$sex, function(x) {
+    if (x == "Male") {
+        return(1)
+    }
+    if (x == "Female") {
+        return(0)
+    }
+    return(NA)
+})
 
-# Write the data
+# Write the files
+write.table(
+    pheno,
+    file = gzfile(lg$data_pheno_outfile),
+    row = FALSE,
+    col = TRUE,
+    quote = FALSE,
+    sep = "\t"
+)
 write.table(
     data,
-    file = gzfile(lg$data_outfile),
+    file = gzfile(lg$data_covar_outfile),
     row = FALSE,
     col = TRUE,
     quote = FALSE,

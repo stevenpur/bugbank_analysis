@@ -60,12 +60,8 @@ system(paste0("(cd ", lg$srcdir, " && git show --oneline -s)"))
 # Input and output files #
 ##########################
 setwd(config$wrkdir)
-# Input file created by hgi-bigsnpr-pca.R
-lg$infilename.gz <- paste0("ukb41482.bd.gwas-bigsnpr-pca.", lg$stem, ".", lg$stratum, ".txt.gz")
-lg$infilename <- paste0("ukb41482.bd.gwas-bigsnpr-pca.", lg$stem, ".", lg$stratum, ".txt")
 # Step 1 output files
 lg$stem.out <- paste0(lg$stem, ".", lg$stratum)
-lg$outputPrefix <- paste0(config$wrkdir, "/saige/step1.", lg$stem.out)
 lg$log.rds.outfilename <- paste0(
     config$wrkdir,
     "/saige/log.ukb41482.gwas-saige-gwas.", lg$stem.out, ".rds"
@@ -98,20 +94,19 @@ tryCatch(
         print(lg$bigsnpr.jobid)
 
         ####################
-        # Run SAIGE step 1 #
+        # Run Regenie step 1 #
         ####################
-        jobname <- paste0("saige-step1_", lg$stem, ".", lg$stratum)
+        jobname <- paste0("regenie-step1_", lg$stem, ".", lg$stratum)
         lg$step1.cmd <- paste(
             "sbatch",
             paste0("--dependency=afterok:", lg$bigsnpr.jobid),
-            "-o", paste0(config$saige.stddir, "/", jobname),
+            "-o", paste0(config$regenie.stddir, "/", jobname),
             "-J", jobname,
-            paste0("--cpus-per-task=", (lg$ncores)),
-            paste0(config$srcdir, "/saige-step1-runner.sh"),
+            paste0("--cpus-per-task=", (lg$ncores * 3)),
+            paste0(config$srcdir, "/step1.sh"),
             # shell script arguments to pass
-            lg$stem, lg$stratum, config$wrkdir,
-            lg$ncores, config$ukb.derived.dir, config$ukbdir,
-            config$saige.container.dir, lg$outputPrefix
+            lg$stem, lg$stratum, 15, config$wrkdir,
+            config$ukb.derived.dir
         )
 
         # Submit and record jobid
@@ -123,18 +118,18 @@ tryCatch(
         )[1]
 
         ####################
-        # Run SAIGE Step 2 #
+        # Run Regenie Step 2 #
         ####################
-        jobname <- paste0("saige-step2_", lg$stem, ".", lg$stratum)
+        jobname <- paste0("regenie-step2_", lg$stem, ".", lg$stratum)
         lg$step2.cmd <- paste(
             "sbatch",
             paste0("--dependency=afterok:", lg$step1.jobid),
-            "-o", paste0(config$saige.stddir, "/", jobname, "_%a"),
+            "-o", paste0(config$regenie.stddir, "/", jobname, "_%a"),
             "-J", jobname,
-            paste0(config$srcdir, "/saige-step2-runner.sh"),
+            paste0(config$srcdir, "/step2.sh"),
             # shell script arguments to pass
-            lg$stem.out, config$wrkdir, config$ukb.derived.dir,
-            config$ukbdir, config$saige.container.dir
+            lg$stem, lg$stratum, config$ukb.derived.dir,
+            config$ukbdir, config$wrkdir
         )
 
         # Submit and record jobid
@@ -148,13 +143,13 @@ tryCatch(
         #################################
         # Merge the SAIGE summary files #
         #################################
-        jobname <- paste0("saige-step3_", lg$stem, ".", lg$stratum)
+        jobname <- paste0("regenie-merge_", lg$stem, ".", lg$stratum)
         lg$step3.cmd <- paste(
             "sbatch",
             paste0("--dependency=afterok:", lg$step2.jobid),
             "-o", paste0(config$saige.stddir, "/", jobname),
             "-J", jobname,
-            paste0(config$srcdir, "/saige-step3-runner.sh"),
+            paste0(config$srcdir, "/merge_files.sh"),
             # shell script arguments to pass
             lg$stem.out, config$wrkdir
         )
@@ -194,7 +189,7 @@ tryCatch(
             paste0("--dependency=afterok:", lg$step4.jobid),
             "-J", jobname,
             "-o", paste0(config$manhattan.stddir, "/", jobname),
-            paste0(config$srcdir, "/pheno/run_manhattan.sh"),
+            paste0(config$srcdir, "/run_manhattan.sh"),
             # shell script arguments to pass
             lg$stem, lg$stratum, config$wrkdir, config$srcdir
         )
@@ -211,7 +206,7 @@ tryCatch(
         jobname <- paste0("cleaning_", lg$stem, "_", lg$stratum)
         lg$step6.cmd <- paste(
             "sbatch",
-            "--dependency=afterok:", lg$step5.jobid,
+            paste0("--dependency=afterok:", lg$step5.jobid),
             "-J", jobname,
             "-o", paste0(config$manhattan.stddir, "/", jobname),
             paste0(config$srcdir, "/remove_intermediate_files_strat.sh"),

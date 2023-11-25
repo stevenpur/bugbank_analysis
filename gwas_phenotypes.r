@@ -88,7 +88,7 @@ tryCatch(
             } else {
                 sub_bb_data <- bugbank_data %>% filter(
                     ORGANISM_SPECIES_NAME %in% pathogens &
-                        SPECIMEN_TYPE_DESC == specimen
+                        SPECIMEN_GROUP_DESC == specimen
                 )
                 return(unique(sub_bb_data$UKB_EID))
             }
@@ -162,7 +162,7 @@ tryCatch(
         ### assign phenotype ###
         pheno <- matrix(0, nrow = length(all_eids), ncol = nrow(pathogen_tb))
         colnames(pheno) <- names(cases_eids)
-        for (pheno_name in colnames(cases_eids)) {
+        for (pheno_name in colnames(pheno)) {
             # remove individuals with infection history from controls
             pheno[which(all_eids %in% infect_eid), pheno_name] <- NA
             # assign cases

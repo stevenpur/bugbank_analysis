@@ -49,9 +49,9 @@ system(paste0("(cd ", lg$srcdir, " && git show --oneline -s)"))
 lg$joint_phenotypes_file <- paste0(config$wrkdir, "/ukb41482.bd.gwasdata.", lg$stem, ".txt")
 
 # Output files
-lg$log_rds_outfile <- paste0(config$wrkdir, "/log.ukb41482.hgi-stratify.", lg$stem, ".rds")
+lg$log_rds_outfile <- paste0(config$wrkdir, "/log.ukb41482.gwas-stratify.", lg$stem, ".rds")
 # phenotype: UK Biobank data field reference
-lg$data_outfileprefix <- paste0(config$wrkdir, "/ukb41482.bd.hgi-stratify.", lg$stem)
+lg$data_outfileprefix <- paste0(config$wrkdir, "/ukb41482.bd.gwas-stratify.", lg$stem)
 lg$data_outfiles <- list()
 tryCatch(
     {
@@ -59,13 +59,6 @@ tryCatch(
         # Load the joint phenotypes #
         #############################
         data <- read.csv(lg$joint_phenotypes_file, sep = "\t")
-
-        #########################################################################
-        # !! I will treat pan-ukb ancestry assignment as the correct ancestry here
-        #########################################################################
-        data <- data[, -which(colnames(data) == "ancestry")]
-        colnames(data)[which(colnames(data) == "ancestry_panukb")] <- "ancestry"
-        data$ancestry <- ifelse(data$ancestry == "EUR", "EUR", "OTH")
 
         pheno_cols <- setdiff(colnames(data), c("eid", "sex", "age", "ancestry"))
         print("Found phenotypes called:")
@@ -87,8 +80,8 @@ tryCatch(
             lg$data_outfiles[[pheno]] <- paste0(lg$data_outfileprefix, ".", stratum, ".txt.gz")
             out <- data.frame("eid" = data$eid, "pheno" = data[, pheno], "age" = data[, "age"], "sex" = data[, "sex"])
             # WARNING: hacky approach here, need to update for long term usage
-            out$pheno[which(is.na(data$ancestry))] <- NA
-            out$pheno[which(data$ancestry != "EUR")] <- NA
+            # out$pheno[which(is.na(data$ancestry))] <- NA
+            # out$pheno[which(data$ancestry != "eur")] <- NA
             lg$n.cases[[stratum]] <- sum(out$pheno == 1, na.rm = T)
             print(paste0("number of cases for ", stratum, ":", lg$n.cases[[stratum]]))
             write.table(out, file = gzfile(lg$data_outfiles[[pheno]]), row = FALSE, col = TRUE, quote = FALSE, sep = "\t")

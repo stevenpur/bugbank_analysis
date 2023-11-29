@@ -1,7 +1,6 @@
 ##################
 # Run SAIGE GWAS #
 ##################
-# 22 August 2020
 library(batchtools)
 
 ################
@@ -64,7 +63,7 @@ setwd(config$wrkdir)
 lg$stem.out <- paste0(lg$stem, ".", lg$stratum)
 lg$log.rds.outfilename <- paste0(
     config$wrkdir,
-    "/saige/log.ukb41482.gwas-saige-gwas.", lg$stem.out, ".rds"
+    "/saige/log.ukb41482.gwas-regenie-gwas.", lg$stem.out, ".rds"
 )
 
 # Enclose what follows in a tryCatch statement so the log is output
@@ -141,7 +140,7 @@ tryCatch(
         )[1]
 
         #################################
-        # Merge the SAIGE summary files #
+        # Merge the REGENIE summary files #
         #################################
         jobname <- paste0("regenie-merge_", lg$stem, ".", lg$stratum)
         lg$step3.cmd <- paste(
@@ -149,7 +148,7 @@ tryCatch(
             paste0("--dependency=afterok:", lg$step2.jobid),
             "-o", paste0(config$saige.stddir, "/", jobname),
             "-J", jobname,
-            paste0(config$srcdir, "/merge_files.sh"),
+            paste0(config$srcdir, "/merge_summary.sh"),
             # shell script arguments to pass
             lg$stem.out, config$wrkdir
         )
@@ -160,33 +159,13 @@ tryCatch(
         print(lg$step3.jobid)
         lg$step3.jobid <- unlist(strsplit(lg$step3.jobid, " "))[4]
 
-        ################################
-        # Merge the SAIGE output files #
-        ################################
-        jobname <- paste0("saige-merge_", lg$stem, "_", lg$stratum)
-        lg$step4.cmd <- paste(
-            "sbatch",
-            paste0("--dependency=afterok:", lg$step3.jobid),
-            "-J", jobname,
-            "-o", paste0(config$saige.stddir, "/", jobname),
-            paste0(config$srcdir, "/saige-merge-output.sh"),
-            # shell script arguments to pass
-            lg$stem.out, config$wrkdir
-        )
-
-        # Submit and record jobid
-        lg$step4.jobid <- readLines(pipe(lg$step4.cmd))
-        print("Step 4 jobid:")
-        print(lg$step4.jobid)
-        lg$step4.jobid <- unlist(strsplit(lg$step4.jobid, " "))[4]
-
         ##############################
         # Create the Manhattan plots #
         ##############################
         jobname <- paste0("saige-manhattan_", lg$stem, "_", lg$stratum)
-        lg$step5.cmd <- paste(
+        lg$step4.cmd <- paste(
             "sbatch",
-            paste0("--dependency=afterok:", lg$step4.jobid),
+            paste0("--dependency=afterok:", lg$step3.jobid),
             "-J", jobname,
             "-o", paste0(config$manhattan.stddir, "/", jobname),
             paste0(config$srcdir, "/run_manhattan.sh"),
@@ -195,27 +174,27 @@ tryCatch(
         )
 
         # Submit and record jobid
-        lg$step5.jobid <- readLines(pipe(lg$step5.cmd))
-        print("Step 5 jobid:")
-        print(lg$step5.jobid)
-        lg$step5.jobid <- unlist(strsplit(lg$step5.jobid, " "))[4]
+        lg$step4.jobid <- readLines(pipe(lg$step4.cmd))
+        print("Step 4 jobid:")
+        print(lg$step4.jobid)
+        lg$step4.jobid <- unlist(strsplit(lg$step4.jobid, " "))[4]
 
         ###########################
         # Clean intermediate data #
         ###########################
         jobname <- paste0("cleaning_", lg$stem, "_", lg$stratum)
-        lg$step6.cmd <- paste(
+        lg$step5.cmd <- paste(
             "sbatch",
-            paste0("--dependency=afterok:", lg$step5.jobid),
+            paste0("--dependency=afterok:", lg$step4.jobid),
             "-J", jobname,
             "-o", paste0(config$manhattan.stddir, "/", jobname),
             paste0(config$srcdir, "/remove_intermediate_files_strat.sh"),
             lg$stem, lg$stratum
         )
-        lg$step6.jobid <- readLines(pipe(lg$step6.cmd))
-        print("Step 6 jobid:")
-        print(lg$step6.jobid)
-        lg$step6.jobid <- unlist(strsplit(lg$step6.jobid, " "))[4]
+        lg$step5.jobid <- readLines(pipe(lg$step5.cmd))
+        print("Step 5 jobid:")
+        print(lg$step5.jobid)
+        lg$step5.jobid <- unlist(strsplit(lg$step5.jobid, " "))[4]
     },
     finally = {
         # On error or clean exit

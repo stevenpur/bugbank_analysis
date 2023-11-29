@@ -6,6 +6,7 @@
 #######################
 # 19 August 2020
 library(bigsnpr)
+library(tidyverse)
 
 # Every object in lg will be saved
 lg <- list()

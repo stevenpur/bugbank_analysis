@@ -146,7 +146,7 @@ tryCatch(
         lg$step3.cmd <- paste(
             "sbatch",
             paste0("--dependency=afterok:", lg$step2.jobid),
-            "-o", paste0(config$saige.stddir, "/", jobname),
+            "-o", paste0(config$regenie.stddir, "/", jobname),
             "-J", jobname,
             paste0(config$srcdir, "/merge_summary.sh"),
             # shell script arguments to pass

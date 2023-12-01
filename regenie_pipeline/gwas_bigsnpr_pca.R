@@ -168,7 +168,10 @@ data_pcs[match(plink$fam$sample.ID[bed_include], data$eid), ] <- pcs
 data <- cbind(data, data_pcs)
 data <- data[, c("eid", "eid", "age", "sex", paste0("pc", 1:lg$npcs))]
 colnames(data) <- c("FID", "IID", "age", "sex", paste0("pc", 1:lg$npcs))
-data$sex <- map_int(data$sex, function(x) {
+data$sex <- map_dbl(data$sex, function(x) {
+    if (is.na(x)) {
+        return(NA)
+    }
     if (x == "Male") {
         return(1)
     }

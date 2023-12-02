@@ -26,7 +26,7 @@ fi
 
 if [ "$CHR" = "24" ]; then
 	CHR="XY"
-	SAMP=${UKBDEDIR}ukb53100_imp_chrXY_v3_s486331.sample   
+	SAMP=${UKBDEDIR}/ukb53100_imp_chrXY_v3_s486331.sample   
 fi
 
 /well/bag/clme1992/regenie_v3.2.8.gz_x86_64_Centos7_mkl \
@@ -41,7 +41,8 @@ fi
   --firth --approx --pThresh 0.01 \
   --pred step1_${STEM}_${STRAT}_pred.list \
   --bsize 400 \
-  --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR}
+  --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR} \
+  --minMAC 30
 
 if [ "$CHR" = "1" ]; then
   tail -n +2 step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie | gzip > step2.${STEM}_${STRAT}_chr${CHR}.gz

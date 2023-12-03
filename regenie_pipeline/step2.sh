@@ -42,7 +42,7 @@ fi
   --pred step1_${STEM}_${STRAT}_pred.list \
   --bsize 400 \
   --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR} \
-  --minMAC 30
+  --minMAC 100
 
 if [ "$CHR" = "1" ]; then
   tail -n +1 step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie | gzip > step2.${STEM}_${STRAT}_chr${CHR}.gz

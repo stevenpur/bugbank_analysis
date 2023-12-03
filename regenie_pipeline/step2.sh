@@ -45,8 +45,8 @@ fi
   --minMAC 30
 
 if [ "$CHR" = "1" ]; then
-  tail -n +2 step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie | gzip > step2.${STEM}_${STRAT}_chr${CHR}.gz
-else
   tail -n +1 step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie | gzip > step2.${STEM}_${STRAT}_chr${CHR}.gz
+else
+  tail -n +2 step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie | gzip > step2.${STEM}_${STRAT}_chr${CHR}.gz
 fi
 rm -f step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie

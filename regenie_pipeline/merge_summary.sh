@@ -4,13 +4,17 @@
 #SBATCH -p short
 #SBATCH --cpus-per-task=1
 
-$STEM=$1
-$STRAT=$2
-$WKDIR=$3
+STEM=$1
+STRAT=$2
+WKDIR=$3
+
+echo "stem:$STEM"
+echo "strat:$STRAT"
+echo "wkdir:$WKDIR"
 
 cd $WKDIR
 CHR=1
-cat step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie.gz > summary.$STEM.$STRAT.txt.gz
+cat step2.${STEM}_${STRAT}_chr${CHR}.gz > summary.$STEM.$STRAT.txt.gz
 for i in {2..24}
 do
     echo "chromosome"$CHR
@@ -23,5 +27,5 @@ do
         CHR="XY"
     fi
         
-    cat step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie.gz >> summary.$STEM.$STRAT.txt.gz
+    cat step2.${STEM}_${STRAT}_chr${CHR}.gz >> summary.$STEM.$STRAT.txt.gz
 done

@@ -150,7 +150,7 @@ tryCatch(
             "-J", jobname,
             paste0(config$srcdir, "/merge_summary.sh"),
             # shell script arguments to pass
-            lg$stem.out, config$wrkdir
+            lg$stem, lg$stratum, config$wrkdir
         )
 
         # Submit and record jobid

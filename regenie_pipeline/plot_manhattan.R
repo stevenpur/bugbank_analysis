@@ -22,7 +22,7 @@ pl <- function(expr, filename = paste0("/Net/fs1/home/wilson/public_html/files/R
     invisible()
 }
 # Simes' test counterpart to HMP function
-p.Simes <- function(p, w = NULL, L = NULL, w.sum.tolerance = 1e-6, multilevel = TRUE) {
+p_simes <- function(p, w = NULL, L = NULL, w.sum.tolerance = 1e-6, multilevel = TRUE) {
     if (is.null(L) & multilevel) {
         warning("L not specified: for multilevel testing set L to the total number of individual p-values")
         L <- length(p)
@@ -45,7 +45,7 @@ p.Simes <- function(p, w = NULL, L = NULL, w.sum.tolerance = 1e-6, multilevel = 
     return(c(p.Simes = min(sort(pstar) / (1:length(p)))))
 }
 # Genomic control inflation factor
-calc.inflation.factor <- function(pval) {
+calc_inflation_factor <- function(pval) {
     qchisq(median(pval), 1, low = FALSE) / qchisq(.5, 1)
 }
 
@@ -89,15 +89,15 @@ system(paste0("(cd ", lg$srcdir, " && git show --oneline -s)"))
 # Input and output files #
 ##########################
 
-lg$infile <- paste0(config$wrkdir, "summary.", lg$stem, ".", lg$stratum, ".txt.gz")
+lg$infile <- paste0(config$wrkdir, "/summary.", lg$stem, ".", lg$stratum, ".txt.gz")
 
 # Plot titles
 main <- paste0(lg$stem, ".", lg$stratum)
 # Output files
-lg$manhattan_30MAC_file <- paste0(config$wrkdir, "/Manhattan.30MAC.", lg$stem, ".", lg$stratum, ".png") # nolint: line_length_linter.
-manhattan_filee <- paste0(config$wrkdir, "/Manhattan.", lg$stem, ".", lg$stratum, ".png")
-lg$QQplot_file <- paste0(config$wrkdir, "/QQplot.", lg$stem, ".", lg$stratum, ".png")
-lg$log_rds_outfile <- paste0(config$wrkdir, "/log.manhattan.", lg$stem, ".", lg$stratum, ".rds") # nolint: line_length_linter.
+lg$manhattan_30MAC_file <- paste0(config$wrkdir, "/Manhattan.30MAC.", lg$stem, ".", lg$stratum, "_regenie.png") # nolint: line_length_linter.
+manhattan_filee <- paste0(config$wrkdir, "/Manhattan.", lg$stem, ".", lg$stratum, "_regenie.png")
+lg$QQplot_file <- paste0(config$wrkdir, "/QQplot.", lg$stem, ".", lg$stratum, "_regenie.png")
+lg$log_rds_outfile <- paste0(config$wrkdir, "/log.manhattan.", lg$stem, ".", lg$stratum, "_regenie.rds") # nolint: line_length_linter.
 lg$highlight <- FALSE
 
 # Enclose what follows in a tryCatch statement so the log is output
@@ -139,7 +139,7 @@ tryCatch(
         print(nrow(res))
 
         # Prepare chromosome names and positions
-        chr_ftr <- factor(CHROM, levels = c(1:22, "X", "XY"))
+        chr_ftr <- factor(CHROM, levels = c(1:23))
         chr_maxpos <- aggregate(GENPOS, by = list(chr_ftr), max)$x
         chr_cumpos <- cumsum(c(0, chr_maxpos))
         chr_midpos <- 0.5 * (chr_cumpos[-1] + chr_cumpos[-length(chr_cumpos)])

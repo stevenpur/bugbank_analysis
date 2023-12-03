@@ -35,8 +35,8 @@ fi
   --bgen ${UKBDIR}/v3/imputation/ukb_imp_chr${CHR}_v3.bgen \
   --ref-first \
   --sample ${SAMP} \
-  --phenoFile ${WKDIR}/regenie_test.pheno \
-  --covarFile ${WKDIR}/regenie_test.cov \
+  --phenoFile ${WKDIR}/ukb41482.bd.gwas-pheno.${STEM}.${STRAT}.txt.gz \
+  --covarFile ${WKDIR}/ukb41482.bd.gwas-covar.${STEM}.${STRAT}.txt.gz \
   --bt \
   --firth --approx --pThresh 0.01 \
   --pred step1_${STEM}_${STRAT}_pred.list \

@@ -59,6 +59,7 @@ help <- paste(
     sep = "\n"
 )
 # Argument
+lg <- list()
 lg$args <- commandArgs(trailingOnly = TRUE)
 print("Arguments:")
 print(lg$args)

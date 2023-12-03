@@ -6,9 +6,10 @@ source("~/.saige_pipe.config")
 # command-line arguments
 lg <- list()
 help <- paste(
-    "Usage: Rscript hgi-phenotypes-bugbank.R stem pathogen_file",
+    "Usage: Rscript hgi-phenotypes-bugbank.R stem pathogen_file source",
     sep = "\n"
 )
+
 # Argument
 lg$args <- commandArgs(trailingOnly = TRUE)
 print("Arguments:")
@@ -22,6 +23,8 @@ lg$stem <- as.character(lg$args[1])
 if (is.na(lg$stem) | lg$stem == "") stop("Nonsensical stem")
 lg$pathogen_file <- as.character(lg$args[2])
 if (is.na(lg$pathogen_file) | lg$pathogen_file == "") stop("Nonsensical pathogen file")
+lg$source <- as.character(lg$args[3])
+if (is.na(lg$source) | lg$source == "") stop("Please specify data source (hes/sgss)")
 
 
 ### Input and output files ###
@@ -29,12 +32,19 @@ if (is.na(lg$pathogen_file) | lg$pathogen_file == "") stop("Nonsensical pathogen
 # input files
 
 lg$bugbank_file <- paste0(config$bbdatadir, "/ukb_sgss_extract_refined.csv")
-lg$pathogen_taxonomy_file <- paste0(config$bbdatadir, "/bb_pathogen_taxonomy_13032023.tsv")
+if (lg$source == "sgss") {
+    lg$pathogen_taxonomy_file <- paste0(config$bbdatadir, "/bb_pathogen_taxonomy_13032023.tsv")
+} else if (lg$source == "hes") {
+    lg$pathogen_taxonomy_file <- paste0(config$bbdatadir, "/hes_pathogen_taxonomy_fromRaw_13032023.tsv")
+}
+
+
 lg$hesin_diag_file <- paste0(config$ukb.derived.dir, "/hes/hesin_diag.latest.txt.gz")
 lg$pathogen_icd10_file <- paste0(config$bbdatadir, "/pathogen_to_unique_icd10.tsv")
 lg$bd_RDdata_file <- paste0(config$ukb.derived.dir, "/ukb41482.ukb41376.fields.RData")
 lg$bd_not_lost2followup_file <- paste0(config$ukb.derived.dir, "/ukb41482.English-not-lost-to-followup-8-April-2020.txt")
 lg$bed_sample_qc_file <- paste0(config$ukbdir, "/v2/qc/ukb_sqc_v2.txt")
+lg$withdrawn_eid_file <- paste0(config$bbdatadir, "/w53100_2023-04-25.csv")
 # Pre-computed eids for the bed-format genotypes
 lg$bed_eid_file <- paste0(config$ukb.derived.dir, "/analysis.bed.eids.txt")
 # Individuals with first degree relatives
@@ -58,6 +68,7 @@ tryCatch(
         system.time(load(lg$bd_RDdata_file))
         all_eids <- bd[, "f.eid"]
         bd_not_lost2followup <- scan(lg$bd_not_lost2followup_file, what = "logical") == "TRUE"
+        withdrawn_eid <- scan(lg$withdrawn_eid_file)
         # Sample QC
         bed_sample_qc <- read.csv(lg$bed_sample_qc_file, sep = " ")
         # The corresponding eids
@@ -77,24 +88,35 @@ tryCatch(
         ### get phenotype ###
 
         # find cases eid for each pathogen-specimen combination
-        cases_eids <- map(1:nrow(pathogen_tb), function(i) {
-            tax_lev <- pathogen_tb$tax_lev[i]
-            name <- pathogen_tb$name[i]
-            specimen <- pathogen_tb$specimen[i]
-            pathogens <- pathogen_taxonomy$origin_name[which(pathogen_taxonomy[[tax_lev]] == name)]
-            if (tolower(specimen) == "all") {
-                sub_bb_data <- bugbank_data %>% filter(ORGANISM_SPECIES_NAME %in% pathogens)
-                return(unique(sub_bb_data$UKB_EID))
-            } else {
-                sub_bb_data <- bugbank_data %>% filter(
-                    ORGANISM_SPECIES_NAME %in% pathogens &
-                        SPECIMEN_GROUP_DESC == specimen
-                )
-                return(unique(sub_bb_data$UKB_EID))
-            }
-        })
-        names(cases_eids) <- gsub(" ", "_", paste0(pathogen_tb$name, ".", pathogen_tb$tax_lev, ".", pathogen_tb$specimen))
-
+        if (lg$source == "sgss") {
+            cases_eids <- map(1:nrow(pathogen_tb), function(i) {
+                tax_lev <- pathogen_tb$tax_lev[i]
+                name <- pathogen_tb$name[i]
+                specimen <- pathogen_tb$specimen[i]
+                pathogens <- pathogen_taxonomy$origin_name[which(pathogen_taxonomy[[tax_lev]] == name)]
+                if (tolower(specimen) == "all") {
+                    sub_bb_data <- bugbank_data %>% filter(ORGANISM_SPECIES_NAME %in% pathogens)
+                    return(unique(sub_bb_data$UKB_EID))
+                } else {
+                    sub_bb_data <- bugbank_data %>% filter(
+                        ORGANISM_SPECIES_NAME %in% pathogens &
+                            SPECIMEN_GROUP_DESC == specimen
+                    )
+                    return(unique(sub_bb_data$UKB_EID))
+                }
+            })
+            names(cases_eids) <- gsub(" ", "_", paste0(pathogen_tb$name, ".", pathogen_tb$tax_lev, ".", pathogen_tb$specimen))
+        } else if (lg$source == "hes") {
+            cases_eids <- map(1:nrow(pathogen_tb), function(i) {
+                tax_lev <- pathogen_tb$tax_lev[i]
+                name <- pathogen_tb$name[i]
+                # to get the icd10s, we need the taxonomy level name instead of origin name
+                icd10s <- pathogen_icd10$icd10[which(pathogen_icd10$org_name %in% name)]
+                icd10s <- unique(unlist(strsplit(icd10s, ",")))
+                result_eids <- unique(hes_diag$eid[which(hes_diag$diag_icd10 %in% icd10s)])
+            })
+            names(cases_eids) <- gsub(" ", "_", paste0(pathogen_tb$name, ".", pathogen_tb$tax_lev))
+        }
 
         ### find the confounding individuals (anyone who's ever been infected) ###
 
@@ -146,6 +168,7 @@ tryCatch(
         # filter out samples not suitable to include in analysis
         f_assesscentre <- "f.54.0.0"
         filter <- bd[, f_assesscentre] %in% assess_centre_England &
+            !(all_eids %in% withdrawn_eid) &
             bd_not_lost2followup &
             sample_qc$het.missing.outliers == 0 &
             sample_qc$putative.sex.chromosome.aneuploidy == 0 &

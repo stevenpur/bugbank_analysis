@@ -29,7 +29,7 @@ if [ "$CHR" = "24" ]; then
 	SAMP=${UKBDEDIR}/ukb53100_imp_chrXY_v3_s486331.sample   
 fi
 
-/well/bag/clme1992/regenie_v3.2.8.gz_x86_64_Centos7_mkl \
+/well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
   --threads 15 \
   --step 2 \
   --bgen ${UKBDIR}/v3/imputation/ukb_imp_chr${CHR}_v3.bgen \

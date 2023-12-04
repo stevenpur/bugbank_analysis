@@ -10,7 +10,7 @@ WDIR=$4
 UKBDIR=$5
 
 cd $WKDIR
-/well/bag/clme1992/regenie_v3.2.8.gz_x86_64_Centos7_mkl \
+/well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
   --threads 13 \
   --step 1 \
   --bed ${UKBDIR}/ukb53100_s488264.imp_merged_QC \
@@ -19,5 +19,5 @@ cd $WKDIR
   --bt \
   --bsize 1000 \
   --lowmem \
-  --lowmem-prefix ${WDIR}/regenie_tmp_preds \
+  --lowmem-prefix ${WDIR}/regenie_tmp_preds.${STEM}.${STRAT} \
   --out ${WDIR}/step1_${STEM}_${STRAT}

@@ -59,7 +59,7 @@ setwd(config$wrkdir)
 
 # Read hgi-stratify file
 print(config$wrkdir)
-strat.logfile <- paste0("./log.ukb41482.hgi-stratify.", lg$stem, ".rds")
+strat.logfile <- paste0("./log.ukb41482.gwas-stratify.", lg$stem, ".rds")
 strat <- readRDS(strat.logfile)
 lg$go.catLEV <- names(strat$n.cases[strat$n.cases >= 50])
 print("Not running the following strata due to small case counts (<50):")
@@ -71,7 +71,15 @@ lg$log.outfile <- paste0("log.ukb41482.run-gwas.", lg$stem, ".rds")
 ################
 # Run the GWAS #
 ################
-lg$cmds <- paste0("sbatch --output ", config$saige.stddir, "/run-gwas_", lg$stem, " ", config$srcdir, "/pheno/run_pipeline_sub.R ", lg$stem, " ", lg$go.catLEV, " ", lg$ncores, " ", lg$npcs)
+lg$cmds <- paste0(
+    "sbatch --output ", config$regenie.stddir, "/run-pipeline_", lg$stem, " ",
+    config$srcdir, "/run_pipeline_sub.sh ",
+    lg$stem, " ",
+    lg$go.catLEV, " ",
+    lg$ncores, " ",
+    lg$npcs, " ",
+    config$wrkdir
+)
 names(lg$cmds) <- lg$go.catLEV
 print(lg$cmds[1])
 for (i in 1:length(lg$cmds)) {

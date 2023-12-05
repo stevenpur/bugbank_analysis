@@ -17,22 +17,40 @@ UKBDIR=$4
 WKDIR=$5
 
 SAMP=$UKBDEDIR/ukb53100_imp_any_chr_v3_s487296.sample
-
+GF=$UKBDIR/v3/imputation/ukb_imp_chr${CHR}_v3.bgen
 cd $WKDIR
 if [ "$CHR" = "23" ]; then
 	CHR="X"
 	SAMP=$UKBDEDIR/ukb53100_imp_chrX_v3_s486645.sample
+  GF=$WKDIR/chrX_check/ukb_chrXY
 fi
 
 if [ "$CHR" = "24" ]; then
 	CHR="XY"
-	SAMP=${UKBDEDIR}/ukb53100_imp_chrXY_v3_s486331.sample   
+	SAMP=${UKBDEDIR}/ukb53100_imp_chrXY_v3_s486331.sample
+  GF=$WKDIR/chrX_check/ukb_chrXY
 fi
 
-/well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
+if [ "$CHR" = "24" ] || [ "$CHR" = "24" ]; then
+  /well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
+    --threads 15 \
+    --step 2 \
+    --pgen $GF \
+    --ref-first \
+    --sample ${SAMP} \
+    --phenoFile ${WKDIR}/ukb41482.bd.gwas-pheno.${STEM}.${STRAT}.txt.gz \
+    --covarFile ${WKDIR}/ukb41482.bd.gwas-covar.${STEM}.${STRAT}.txt.gz \
+    --bt \
+    --firth --approx --pThresh 0.01 \
+    --pred step1_${STEM}_${STRAT}_pred.list \
+    --bsize 400 \
+    --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR} \
+    --minMAC 100
+else
+  /well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
   --threads 15 \
   --step 2 \
-  --bgen ${UKBDIR}/v3/imputation/ukb_imp_chr${CHR}_v3.bgen \
+  --bgen $GF \
   --ref-first \
   --sample ${SAMP} \
   --phenoFile ${WKDIR}/ukb41482.bd.gwas-pheno.${STEM}.${STRAT}.txt.gz \
@@ -43,6 +61,8 @@ fi
   --bsize 400 \
   --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR} \
   --minMAC 100
+fi
+
 
 if [ "$CHR" = "1" ]; then
   tail -n +1 step2.${STEM}_${STRAT}_chr${CHR}_pheno.regenie | gzip > step2.${STEM}_${STRAT}_chr${CHR}.gz

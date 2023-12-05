@@ -256,64 +256,6 @@ tryCatch(
         ggsave(lg$manhattan_30MAC_file, g, dev = "png", dpi = 400)
 
 
-        # Manhattan plot: all frequencies
-        gdgd <- TRUE | gd
-        data <- data.frame(
-            cumpos = cumpos[gdgd],
-            signif = signif[gdgd],
-            col = chrcol[gdgd],
-            rsid = ID[gdgd],
-            stringsAsFactors = FALSE
-        )
-        data$is_highlight <- "none"
-        if (lg$highlight) {
-            for (i in 1:nrow(hgi_top)) {
-                data$is_highlight[which(data$rsid == hgi_top$rsid[i])] <- hgi_top$analysis[i]
-            }
-        }
-        sub_data1 <- data[data$signif > 2 | data$is_highlight != "none", ]
-        sub_data2 <- data[data$signif < 2 & data$is_highlight == "none", ]
-        sub_data2 <- sub_data2[sample(1:nrow(sub_data2), 1000000), ]
-        sub_data <- rbind(sub_data1, sub_data2)
-
-        g <- ggplot(sub_data, aes(x = cumpos, y = signif)) +
-            geom_point(aes(color = as.factor(col)), alpha = 0.8, size = 0.2) +
-            scale_color_manual(values = rep(c("grey10", "blue"))) +
-            geom_hline(yintercept = -log10(5e-8), linetype = "dotted", size = 0.5) +
-            scale_x_continuous(label = chr_labels[-24], breaks = chr_midpos[-24]) +
-            # scale_x_continuous(label = chr_labels[-c(23, 24)], breaks = chr_midpos[-c(23, 24)]) +
-            theme_bw() +
-            theme(
-                aspect.ratio = 0.4,
-                legend.position = "none",
-                panel.border = element_blank(),
-                panel.grid.major.x = element_blank(),
-                panel.grid.minor.x = element_blank()
-            )
-        if (lg$highlight) {
-            analysis <- strsplit(strsplit(lg$stratum, "\\.")[[1]][1], "")[[1]][1]
-            if (strsplit(lg$stratum, "\\.")[[1]][1] == "lenient") {
-                analysis <- "A"
-            }
-            # highlight HGI top SNP
-            g <- g + geom_point(
-                data = subset(data, is_highlight == analysis),
-                color = "orange",
-                size = 0.3
-            )
-            # highlight relevant position
-            g <- g + geom_vline(
-                xintercept = hgi_top$cumpos[hgi_top$analysis == analysis],
-                linetype = "dotted",
-                alpha = 1, size = 0.15
-            )
-        }
-
-        png(manhattan_filee)
-        plot(g)
-        dev.off()
-        ggsave(manhattan_filee, g, dev = "png", dpi = 400)
-
         # QQplot
         qqfun <- list()
         qqfun_max <- list()

@@ -45,7 +45,7 @@ if [ "$CHR" = "24" ] || [ "$CHR" = "24" ]; then
     --pred step1_${STEM}_${STRAT}_pred.list \
     --bsize 400 \
     --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR} \
-    --minMAC 100
+    --minMAC 30
 else
   /well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
   --threads 15 \
@@ -60,7 +60,7 @@ else
   --pred step1_${STEM}_${STRAT}_pred.list \
   --bsize 400 \
   --out ${WKDIR}/step2.${STEM}_${STRAT}_chr${CHR} \
-  --minMAC 100
+  --minMAC 30
 fi
 
 

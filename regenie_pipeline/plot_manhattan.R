@@ -95,7 +95,7 @@ lg$infile <- paste0(config$wrkdir, "/summary.", lg$stem, ".", lg$stratum, ".txt.
 # Plot titles
 main <- paste0(lg$stem, ".", lg$stratum)
 # Output files
-lg$manhattan_30MAC_file <- paste0(config$wrkdir, "/Manhattan.30MAC.", lg$stem, ".", lg$stratum, "_regenie.png") # nolint: line_length_linter.
+lg$manhattan_30MAC_file <- paste0(config$wrkdir, "/Manhattan.100MAC.", lg$stem, ".", lg$stratum, "_regenie.png") # nolint: line_length_linter.
 manhattan_filee <- paste0(config$wrkdir, "/Manhattan.", lg$stem, ".", lg$stratum, "_regenie.png")
 lg$QQplot_file <- paste0(config$wrkdir, "/QQplot.", lg$stem, ".", lg$stratum, "_regenie.png")
 lg$log_rds_outfile <- paste0(config$wrkdir, "/log.manhattan.", lg$stem, ".", lg$stratum, "_regenie.rds") # nolint: line_length_linter.
@@ -159,17 +159,17 @@ tryCatch(
         maf <- pmin(A1FREQ, 1 - A1FREQ)
 
         # Compute inflation factors
-        lg$lambda <- calc_inflation_factor(pval)
+        lg$lambda <- calc_inflation_factor(na.exclude(pval))
         print("Inflation factor lambda (all variants):")
         print(lg$lambda)
 
         # Inflation factor by MAF
         lg$lambda.maf <- c(
-            calc_inflation_factor(pval[0.1 <= maf]),
-            calc_inflation_factor(pval[0.01 <= maf & maf < 0.1]),
-            calc_inflation_factor(pval[0.001 <= maf & maf < 0.01]),
-            calc_inflation_factor(pval[0.0001 <= maf & maf < 0.001]),
-            calc_inflation_factor(pval[maf < 0.0001])
+            calc_inflation_factor(na.exclude(pval[0.1 <= maf])),
+            calc_inflation_factor(na.exclude(pval[0.01 <= maf & maf < 0.1])),
+            calc_inflation_factor(na.exclude(pval[0.001 <= maf & maf < 0.01])),
+            calc_inflation_factor(na.exclude(pval[0.0001 <= maf & maf < 0.001])),
+            calc_inflation_factor(na.exclude(pval[maf < 0.0001]))
         )
         print("Inflation factor lambda (0.1    <= MAF         ):")
         print(lg$lambda.maf[1])
@@ -183,25 +183,25 @@ tryCatch(
         print(lg$lambda.maf[5])
 
         # Generally filter at 30 MAC
-        lg$mac.threshold <- 30
-        gd <- mac >= lg$mac.threshold
-        print("Number of variants at 30 <= MAC:")
-        print(sum(gd))
+        # lg$mac.threshold <- 30
+        # gd <- mac >= lg$mac.threshold
+        # print("Number of variants at 30 <= MAC:")
+        # print(sum(gd))
 
         # Minimum p-value
-        print("Minimum p-value (30 <= MAC):")
-        lg$min.p <- min(pval[gd])
-        print(lg$min.p)
+        # print("Minimum p-value (30 <= MAC):")
+        # lg$min.p <- min(pval[gd], na.rm = T)
+        # print(lg$min.p)
 
         # Harmonic mean p-value
-        print("Raw harmonic mean p-value (30 <= MAC):")
-        lg$raw.hmp <- 1 / mean(1 / pval[gd])
+        print("Raw harmonic mean p-value (100 <= MAC):")
+        lg$raw.hmp <- 1 / mean(1 / na.exclude(pval[gd]))
         print(lg$raw.hmp)
-        print("Asymptotically exact harmonic mean p-value (30 <= MAC):")
-        lg$p.hmp <- p.hmp(pval[gd], L = sum(gd))
+        print("Asymptotically exact harmonic mean p-value (100 <= MAC):")
+        lg$p.hmp <- p.hmp(na.exclude(pval[gd]), L = sum(gd))
         print(lg$p.hmp)
-        print("Simes' test p-value (30 <= MAC):")
-        lg$p_simes <- p_simes(pval[gd], L = sum(gd))
+        print("Simes' test p-value (100 <= MAC):")
+        lg$p_simes <- p_simes(na.exclude(pval[gd]), L = sum(gd))
         print(lg$p_simes)
 
         # Manhattan plot: MAC 30
@@ -231,7 +231,6 @@ tryCatch(
             scale_color_manual(values = rep(c("grey10", "blue"))) +
             geom_hline(yintercept = -log10(5e-8), , linetype = "dotted", size = 0.5) +
             scale_x_continuous(label = chr_labels[-24], breaks = chr_midpos[-24]) +
-            # scale_x_continuous(label = chr_labels[-c(23, 24)], breaks = chr_midpos[-c(23, 24)] ) +
             theme_bw() +
             theme(
                 aspect.ratio = 0.4,

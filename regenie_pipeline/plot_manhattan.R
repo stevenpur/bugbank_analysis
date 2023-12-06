@@ -55,7 +55,7 @@ calc_inflation_factor <- function(pval) {
 # Command-line arguments #
 ##########################
 help <- paste(
-    "Usage: Rscript hgi-manhattan.R stem stratum (highlight)",
+    "Usage: Rscript plot_manhattan.R stem stratum (highlight)",
     sep = "\n"
 )
 # Argument
@@ -183,15 +183,15 @@ tryCatch(
         print(lg$lambda.maf[5])
 
         # Generally filter at 30 MAC
-        # lg$mac.threshold <- 30
-        # gd <- mac >= lg$mac.threshold
-        # print("Number of variants at 30 <= MAC:")
-        # print(sum(gd))
+        lg$mac.threshold <- 30
+        gd <- mac >= lg$mac.threshold
+        print("Number of variants at 30 <= MAC:")
+        print(sum(gd))
 
         # Minimum p-value
-        # print("Minimum p-value (30 <= MAC):")
-        # lg$min.p <- min(pval[gd], na.rm = T)
-        # print(lg$min.p)
+        print("Minimum p-value (30 <= MAC):")
+        lg$min.p <- min(pval[gd], na.rm = T)
+        print(lg$min.p)
 
         # Harmonic mean p-value
         print("Raw harmonic mean p-value (100 <= MAC):")

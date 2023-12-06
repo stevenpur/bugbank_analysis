@@ -2,7 +2,7 @@
 #SBATCH -D ./
 #SBATCH -A bag.prj
 #SBATCH -p short
-#SBATCH -J hgi-manhattan
+#SBATCH -J manhattan
 #SBATCH --cpus-per-task=7
 
 TMPDIR=/well/bag/clme1992/tmp

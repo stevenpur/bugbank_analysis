@@ -162,7 +162,7 @@ tryCatch(
         ##############################
         # Create the Manhattan plots #
         ##############################
-        jobname <- paste0("saige-manhattan_", lg$stem, "_", lg$stratum)
+        jobname <- paste0("manhattan_", lg$stem, "_", lg$stratum)
         lg$step4.cmd <- paste(
             "sbatch",
             paste0("--dependency=afterok:", lg$step3.jobid),

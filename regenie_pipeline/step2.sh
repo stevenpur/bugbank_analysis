@@ -31,7 +31,7 @@ if [ "$CHR" = "24" ]; then
   GF=$WKDIR/chrX_check/ukb_chrXY
 fi
 
-if [ "$CHR" = "24" ] || [ "$CHR" = "24" ]; then
+if [ "$CHR" = "X" ] || [ "$CHR" = "XY" ]; then
   /well/bag/clme1992/regenie_v3.3.gz_x86_64_Centos7_mkl \
     --threads 15 \
     --step 2 \

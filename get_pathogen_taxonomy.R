@@ -139,7 +139,7 @@ saveRDS(tax_tree, "./sgss_pathogen_tax_tree_13032023.rds")
 # input file
 pathogen_icd10_desc_file <- "./icd10_pathogen_description_13032023.tsv"
 # load input file
-pathogen_icd10_desc <- read.csv(pathogen_icd10_desc_file, sep = "\t")
+pathogen_icd10_desc <- read.csv(pathogen_icd10_desc_file, sep = "\t", stringsAsFactors = F)
 # clean pathogens names
 pathogens <- unique(pathogen_icd10_desc$org_name)
 

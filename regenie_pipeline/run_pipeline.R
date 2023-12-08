@@ -78,7 +78,8 @@ lg$cmds <- paste0(
     lg$go.catLEV, " ",
     lg$ncores, " ",
     lg$npcs, " ",
-    config$wrkdir
+    config$wrkdir, " ",
+    config$srcdir
 )
 names(lg$cmds) <- lg$go.catLEV
 print(lg$cmds[1])

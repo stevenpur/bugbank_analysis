@@ -25,7 +25,7 @@ STRATUM=$2
 NCORES=$3
 NPCS=$4
 WDIR=$5
-
+SRCDIR=$6
 
 # Working directory
 cd $WDIR

@@ -22,7 +22,7 @@ cd $WKDIR
 if [ "$CHR" = "23" ]; then
 	CHR="X"
 	SAMP=$UKBDEDIR/ukb53100_imp_chrX_v3_s486645.sample
-  GF=$WKDIR/chrX_check/ukb_chrXY
+  GF=$WKDIR/chrX_check/ukb_chrX
 fi
 
 if [ "$CHR" = "24" ]; then

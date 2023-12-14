@@ -2,7 +2,7 @@
 #SBATCH -D ./
 #SBATCH -A bag.prj
 #SBATCH -p short
-#SBATCH --cpus-per-task=15
+#SBATCH --cpus-per-task=5
 #SBATCH --array=1-24
 
 #TMPDIR=/well/bag/clme1992/tmp

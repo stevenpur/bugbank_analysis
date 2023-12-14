@@ -3,7 +3,7 @@ import datetime
 import time
 
 def get_step2_num():
-    '''get the nubmer of step 2 jobs array still queuing'''
+    '''get the nubmer of step 2 jobs array still queuing and the number of step2 jobs running'''
     # run squeue command in shell and get the output
     # ensure full job names and job IDs is printed
     output = subprocess.check_output('squeue -u $USER -o "%.18i %.9P %.100j %.8u %.2t %.10M %.6D %R"', shell=True).decode('utf-8')
@@ -45,7 +45,6 @@ def get_step2_num():
 
     # which step2_job_states os in running state
     step2_run_jobs = [job_name for job_name, job_state in zip(step2_job_names, step2_job_states) if job_state == 'R']
-    print(step2_run_jobs, flush=True)
     return [len(result_job_names), len(step2_run_jobs)]
 
 step2_num_jobs_lst = []
@@ -53,7 +52,6 @@ time_stamps = []
 # run get_step2_num() function every hour
 # if the number of step 2 jobs array still queuing is 0, then exit the loop
 while True:
-    print("hi", flush=True)
     # record the time
     time_stamps.append(datetime.datetime.now())
     # record the number of step 2 jobs array still queuing
@@ -65,12 +63,12 @@ while True:
         print('The time is {}'.format(time_stamps[-1]), flush=True)
         print('There are still {} step 2 jobs array still queuing'.format(step2_num_jobs_lst[-1]), flush=True)
         print('There are {} step 2 jobs running'.format(step2_run_num), flush=True)
-        print('------------------------------------------', flush=True)
         # get the rate of change of step 2 jobs array still queuing
         if len(step2_num_jobs_lst) > 1:
             time_diff = (time_stamps[-1] - time_stamps[0]).total_seconds() / 3600
             step2_num_jobs_rate = (step2_num_jobs_lst[-1] - step2_num_jobs_lst[0]) / time_diff            
             # print the rate of change of step 2 jobs array still queuing
             print('The rate of change of step 2 jobs array still queuing is {} per hour'.format(step2_num_jobs_rate), flush=True)
+        print('------------------------------------------', flush=True)
         # sleep for 1 hour
         time.sleep(3600)

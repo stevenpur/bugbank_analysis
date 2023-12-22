@@ -95,8 +95,8 @@ lg$infile <- paste0(config$wrkdir, "/summary.", lg$stem, ".", lg$stratum, ".txt.
 # Plot titles
 main <- paste0(lg$stem, ".", lg$stratum)
 # Output files
-lg$manhattan_30MAC_file <- paste0(config$wrkdir, "/Manhattan.100MAC.", lg$stem, ".", lg$stratum, "_regenie.png") # nolint: line_length_linter.
-manhattan_filee <- paste0(config$wrkdir, "/Manhattan.", lg$stem, ".", lg$stratum, "_regenie.png")
+lg$manhattan_30MAC_file <- paste0(config$wrkdir, "/Manhattan.30MAC.", lg$stem, ".", lg$stratum, "_regenie.png") # nolint: line_length_linter.
+lg$manhattan_file <- paste0(config$wrkdir, "/Manhattan.300MAC03INFO.", lg$stem, ".", lg$stratum, "_regenie.png")
 lg$QQplot_file <- paste0(config$wrkdir, "/QQplot.", lg$stem, ".", lg$stratum, "_regenie.png")
 lg$log_rds_outfile <- paste0(config$wrkdir, "/log.manhattan.", lg$stem, ".", lg$stratum, "_regenie.rds") # nolint: line_length_linter.
 lg$highlight <- FALSE
@@ -308,6 +308,62 @@ tryCatch(
             },
             filename = lg$QQplot_file
         )
+
+        # Manhattan plot: impute score > 0.3, MAC 300
+        lg$mac.threshold <- 300
+        lg$imputed.threshold <- 0.3
+        gd <- mac >= lg$mac.threshold & INFO >= lg$imputed.threshold
+        gdgd <- gd
+        data <- data.frame(
+            cumpos = cumpos[gdgd],
+            signif = signif[gdgd],
+            col = chrcol[gdgd],
+            rsid = ID[gdgd],
+            stringsAsFactors = FALSE
+        )
+
+        data$is_highlight <- "none"
+        if (lg$highlight) {
+            rsid_hash <- hash(keys = data$rsid, values = 1:nrow(data))
+            for (i in 1:nrow(hgi_top)) {
+                data$is_highlight[rsid_hash[[hgi_top$rsid[i]]]] <- hgi_top$analysis[i]
+            }
+        }
+        sub_data1 <- data[data$signif > 2 | data$is_highlight != "none", ]
+        sub_data2 <- data[data$signif < 2 & data$is_highlight == "none", ]
+        sub_data2 <- sub_data2[sample(1:nrow(sub_data2), 1000000), ]
+        sub_data <- rbind(sub_data1, sub_data2)
+
+        g <- ggplot(sub_data, aes(x = cumpos, y = signif)) +
+            geom_point(aes(color = as.factor(col)), alpha = 0.8, size = 0.2) +
+            scale_color_manual(values = rep(c("grey10", "blue"))) +
+            geom_hline(yintercept = -log10(5e-8), , linetype = "dotted", size = 0.5) +
+            scale_x_continuous(label = chr_labels[-24], breaks = chr_midpos[-24]) +
+            theme_bw() +
+            theme(
+                aspect.ratio = 0.4,
+                legend.position = "none",
+                panel.border = element_blank(),
+                panel.grid.major.x = element_blank(),
+                panel.grid.minor.x = element_blank()
+            )
+        if (lg$highlight) {
+            analysis <- strsplit(strsplit(lg$stratum, "\\.")[[1]][1], "")[[1]][1]
+            # highlight HGI top SNP
+            g <- g + geom_point(
+                data = subset(data, is_highlight == analysis),
+                color = "orange", size = 0.3
+            )
+            # highlight relevant position
+            g <- g + geom_vline(
+                xintercept = hgi_top$cumpos[hgi_top$analysis == analysis],
+                linetype = "dotted",
+                alpha = 1, size = 0.15
+            )
+        }
+        ggsave(lg$manhattan_file, g, dev = "png", dpi = 400)
+
+
 
         # Any significant variants (MAF >= 1%)
         print("Significant hits (0.01 <= MAF)")

@@ -22,16 +22,13 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 # Arguments
 STEM=$1
 STRATUM=$2
-WDIR=$3
-SRCDIR=$4
+SRCDIR=$3
 
 echo $1
 echo $2
 echo $3
-echo $4
 #echo $SRCDIR
 # Working directory
-#cd $WDIR
 
 # Run command
 module purge

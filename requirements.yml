@@ -1,9 +1,7 @@
-name: gwas
+name: gwas_regenie
 channels:
   - conda-forge
   - defaults
 dependencies:
   - python=3.11
-  - numpy
-  - pandas
-  - pip
+  - pandas=2.1.4

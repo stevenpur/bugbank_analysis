@@ -5,7 +5,12 @@ import concurrent.futures
 # I/O parameters
 in_dir = os.path.expanduser('~/saige_pipe_test/')
 out_dir = os.path.expanduser('~/bugbank_data/postgwas_regenie/sig_snp')
-stem = 'your_file_stem'
+
+# check user input argument
+if len(sys.argv) != 2:
+    print('Usage: python filter_snp.py <stem>')
+    sys.exit(1)
+stem = sys.argv[1]
 
 # Filtering thresholds
 min_mac = 300
@@ -25,7 +30,7 @@ def apply_filter(input_file, output_file):
     # Apply filters
     filtered_df = df[(df['MAC'] >= min_mac) & 
                      (df['INFO'] >= min_info) & 
-                     (df['PVAL'] >= 10 ** (-min_log10p))]
+                     (df['PVAL'] >= min_log10p)]
 
     # Write to file
     filtered_df.to_csv(output_file, sep=' ', index=False)
@@ -37,6 +42,9 @@ def get_output_file(input_file):
 
 # Process each file using ThreadPoolExecutor
 with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+    # get a list of summary files that start with "summary.$stem"
+    summary_files = [os.path.join(in_dir, f) for f in os.listdir(in_dir) if f.startswith(f'summary.{stem}')]
+    summary_files = ["/users/bag/hlq763/saige_pipe_test//summary.05062023_sgss_species.Escherichia_coli.species.all.txt.gz"]
     # Create a list of futures
     futures = [executor.submit(apply_filter, summary_file, get_output_file(summary_file)) for summary_file in summary_files]
 

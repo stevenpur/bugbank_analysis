@@ -62,7 +62,7 @@ do
             --extract $pool_snp_prefix.chr${chrs}.lst \
             --r2-phased \
             --ld-window-kb 1000 \
-            --out $out_dir/ld.filtered_snps.chr${chrs}
+            --out $out_dir/ld.${stem}.filtered_snps.chr${chrs}
     )&
 done
 
@@ -76,7 +76,7 @@ bgen_xy=$bgen_dir/ukb_imp_chrXY_v3.bgen
         --sample ${samp_dir}/ukb53100_imp_chrX_v3_s486645.sample  \
         --extract $pool_snp_prefix.chrX.lst \
         --make-bed \
-        --out $out_dir/filtered_snps.chrX
+        --out $out_dir/filtered_snps.${stem}.chrX
 )
 # extract from bgen_xy
 (
@@ -84,19 +84,19 @@ bgen_xy=$bgen_dir/ukb_imp_chrXY_v3.bgen
         --sample ${samp_dir}/ukb53100_imp_chrXY_v3_s486331.sample \
         --extract $pool_snp_prefix.chrX.lst \
         --make-bed \
-        --out $out_dir/filtered_snps.chrXY
+        --out $out_dir/filtered_snps.${stem}.chrXY
 )
 # merge the two files
 (
     plink2 --bfile $out_dir/filtered_snps.chrX \
         --bmerge $out_dir/filtered_snps.chrXY.bed $out_dir/filtered_snps.chrXY.bim $out_dir/filtered_snps.chrXY.fam \
         --make-bed \
-        --out $out_dir/filtered_snps.chrX_merged
+        --out $out_dir/filtered_snps.${stem}.chrX_merged
 )
 # calculate LD
 (
     plink2 --bfile $out_dir/filtered_snps.chrX \
         --r2-phased \
         --ld-window-kb 1000 \
-        --out $out_dir/ld.filtered_snps.chrX
+        --out $out_dir/ld.${stem}.filtered_snps.chrX
 )

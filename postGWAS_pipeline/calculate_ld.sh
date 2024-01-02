@@ -16,10 +16,10 @@ then
     echo "please provide the stem of the summary files"
     exit
 fi
-STEM=$1
+stem=$1
 
 # list the files of nominally significant snps
-filtered_snp_fs=$(ls $in_dir/filtered.${STEM}.*)
+filtered_snp_fs=$(ls $in_dir/filtered.${stem}.*)
 echo $filtered_snp_fs
 
 # calculating LD requires us to read the original .bgen files

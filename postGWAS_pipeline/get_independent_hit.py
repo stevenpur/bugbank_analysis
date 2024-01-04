@@ -13,7 +13,7 @@ stem = sys.argv[1]
 # set parameters
 sig_snp_dir = os.path.expanduser("~/bugbank_data/postgwas_regenie/sig_snp/")
 ld_dir = os.path.expanduser("~/bugbank_data/postgwas_regenie/sig_snp_ld/")
-ld_threshold = 0.5
+ld_threshold = 0.2
 # make a dictionary and read LD file for each chromosome
 # the LD file was pre-calculated using plink --r2 with the filtered SNPs
 ld_dict = {}

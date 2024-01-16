@@ -75,5 +75,3 @@ for filter_snp_f in filter_snp_fs:
     logging.info("number of index snps: " + str(index_snps_df.shape[0]))
     output_filename = filter_snp_f.split("/")[-1].replace("filtered", "clump")
     index_snps_df.to_csv(ld_dir + output_filename, sep="\t", index=False)
-        
-

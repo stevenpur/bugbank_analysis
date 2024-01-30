@@ -40,14 +40,15 @@ for filter_snp_f in filter_snp_fs:
     # read the file as df, and extract the SNP IDs
     filter_snp_df = pd.read_csv(filter_snp_f, sep=" ", comment="#")
     print("number of snps in the file: " + str(filter_snp_df.shape[0]))
+
     # start LD clumping
     # record index snps in a new df
     index_snps_df = pd.DataFrame(columns=filter_snp_df.columns)
     while filter_snp_df.shape[0] > 0:
-        # get row with the lowest p-value
-        min_p_row = filter_snp_df.loc[[filter_snp_df["LOG10P"].idxmax()]]
         # record the index snp
+        min_p_row = filter_snp_df.loc[[filter_snp_df["LOG10P"].idxmax()]]
         index_snps_df = pd.concat([index_snps_df, min_p_row])
+
         # check if there is any LD to be considered
         if str(min_p_row["CHROM"].iloc[0]) not in ld_dict.keys():
             # LD file does not exists for the chromosome of the index snp

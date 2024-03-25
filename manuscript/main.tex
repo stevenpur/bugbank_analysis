@@ -1,0 +1,103 @@
+
+\documentclass{article}
+
+\usepackage{array}
+\usepackage{showframe}
+\usepackage{adjustbox}
+\usepackage{longtable}
+\usepackage{tabularray}
+\usepackage{geometry}
+
+\setlength{\extrarowheight}{10pt}
+
+\begin{document}
+
+\title{Assessing the value of linking public health microbiology data to the UK Biobank}
+
+\section{Abstract}
+
+\section{Introduction}
+
+Infectious diseases have been one of the major causes of mortality worldwide, especially in children in developing countries. It is estimated that eight major infections (acquired immunodeficiency syndrome (AIDS), malaria, measles, hepatitis, dengue fever, rabies, tuberculosis and, yellow fever) caused more than 156 million deaths and put a burden of eight trillion dollars on the global economy in the year of 2016 (D. E. Bloom et al. 2020). The emergence of COVID-19 has further shed light on the importance and urgency of the study of infectious diseases [cite]. Infections are the results of complex interactions between hosts, pathogens, and environments. A major challenge of conducting comprehensive studies on infectious diseases is therefore considering the dynamics of all three factors. Another major challenge of studying infectious diseases in public health is the lack of statistical power as regions that have the infrastructure for comprehensive infection records collection are often also low in infectious disease prevalence [cite]. For example, only 4\% of human genome-wide association studies (GWAS) entries in the GWAS catalog (MacArthur et al., 2017) pertain to infectious diseases, contributing a mere 2.5\% to the total distinct variant-trait associations (Mozzi et al. 2018).Here
+\\
+comment::testing::
+\\
+Here, we discuss (i) how UK biobank, a large scale prospective cohort study, offers opportunities to address these challenges. (ii) The current limitation of UK Biobank in identifying infection cases. (iii) how the integration to the recording of microbiological testing database in England has the potential to address these limitations.
+
+\subsection{UK Biobank}
+UK Biobank is a large-scale prospective cohort study. It collects in-depth biomarkers, genetic and other health-related data from a cohort of around 500,000 participants who were between the age of 40 and 69 during recruitment in the UK. Since 2006, UK Biobank has been continuously updated with additions in health-related lifestyle data as well as blood, urine, and saliva samples. It serves as a crucial resource for studying health and diseases [cite]. The prospective nature of UK Biobank allows exposure assessment prior to disease onset, enhancing causal interpretations. It also allows infection cases to accumulate at scale overtime, which is particularly valuable in addressing the challenge of insufficient statistical power. Moreover, the comprehensive health-related data collection allows environmental and behavioral risk factors to be accounted for and investigated.
+\\
+Currently, the identification of infection events in UK Biobank is mainly through its integration of Hospital Episode Statistics (HES). HES includes detailed infection diagnostic records coded in International Classification of Diseases, Tenth Revision (ICD-10). Such infection records offer an opportunity for identifying infection cases for the study of infectious diseases. However, HES codings are based on clinical judgment, i.e. made on the basis of symptoms, signs and/or radiological investigations. Codings may be informed by the results of microbiological investigations, but are commonly made without them. Therefore, infectious disease syndromes (such as pneumonia, sepsis etc) may be due to multiple organisms that cannot be distinguished from the ICD-10 coding.
+
+\subsection{Second Generation Surveillance Systems}
+The Second Generation Surveillance System (SGSS) is a national laboratory reporting system used by Public Health England (PHE; now UKHSA, the United Kingdom Health Security Agency) to capture routine laboratory data on infectious diseases and antimicrobial resistance in England. Since October 2010, diagnostic laboratories in England have been required to report microbiological test results involving human pathogens to PHE (UK Health Security Agency 2022). SGSS is the system/database through which the data of bacterial isolations and antimicrobial resistance from English laboratories are centralized, stored and managed by PHE. It contains detailed information on all positive microbiological isolates (microbial cultures) on which antimicrobial susceptibility testing is performed. Compared to infectious episodes recorded in HES, SGSS records provide a more granular and specific diagnosis of microbiologically-confirmed infection that includes both hospital patients and patients outside hospitals from whom general practitioners (family doctors) have taken specimens. SGSS provides information on specimen type (e.g. blood culture, urine sample), which is indicative of the likely infection site and severity, as blood culture positivity is a highly specific feature of severe infection (septicaemia). However, in contrast to UKB, SGSS lacks detailed information about the infected hosts.
+
+\subsection{Linkage between UK Biobank and SGSS}
+During COVID-19, a dynamic linkage has been developed to link SARS-CoV-2 test results in SGSS to host data in UK Biobank (Armstrong et al. 2020), allowing for investigation of health, lifestyles and genetic risk factors for COVID-19 in the UKB cohort since as early as May 2020 (Hamer et al. 2020; Kuo et al. 2020; Yates et al. 2020). Recently, the feasibility of expanding such linkage to all microbial isolation recorded in SGSS has been established [cite]. While linkage presents an unprecedented opportunity to enhance the infection data in UK Biobank, the value of such linkage has not been assessed.
+\\
+In this study, we use GWAS as a tool to explore the value of the added pathogen information and infection records from SGSS linkage. We collaborated with UKB and PHE/UKHSA and conducted pathogen-specific GWAS on non-COVID19 infection records available in SGSS linkage and HES respectively. Additionally, we also conducted pathogen-specific and specimen-specific GWAS on SGSS-linked infection records. We then compare the GWAS results between HES and SGSS-linked infection records to investigate if the linkage of SGSS can enhance infection research in UKB.
+
+\section{Results}
+\subsection{Comparison of total UKB infections in SGSS and HES}
+As of November 2021, there were 350,699 infection records in SGSS linked to 114,737 UKB participants, not considering cases of SARS-CoV-2. These records correspond to 641 pathogen labels representing distinct microbiological taxa, although some are not specified to the species level (e.g \textit{Enterococcus sp.}) . These records covered the time period 2000 to 2021 and increased in frequency steadily over time from 2008 until 2019 (Figure 4.3; Hilton et al. 2020). The number of records fell slightly in 2020, presumably due to COVID-19 [cite papers reporting reduction in other infections during this time]. In 2021 there were fewer records compared to previous years due to the year being incomplete at the time the analysis was conducted.
+\\
+We identified 148,751 HES-linked infection records from 61,522 UKB participants, not considering cases of SARS-CoV-2.
+\\
+we identified 745 ICD-10 codes as infection-related and designated them to 268 unique pathogen labels (Appendix). Among these ICD-10 codes, 148,751 infection records from 61,522 UKB participants were identified in HES. These infection records could be cross-referenced to 171 pathogen taxa. After applying the participant exclusion criteria described in Methods, 134,536 (38.3\%) records were removed from SGSS and 120,197 (80.8\%) records were removed from HES for GWAS (Figure 4.2).
+\\
+For comparison, the total number of unique infection records after filtering was 216,162 in SGSS vs 28,554 records in HES, corresponding to 78,890 unique participants linked to SGSS records vs 14,573 linked the HES records, and 33 taxa in SGSS vs 15 in HES (Figure 4.2).
+\\
+There were differences in the composition of infectious organisms identified by linkage to SGSS vs HES. Records in SGSS mainly relate to microbiological culture-based tests, with the notable exception of SARS-CoV-2. Consequently, virus-related records were almost exclusively available through HES,  including important pathogens such as human immunodeficiency virus (HIV) and human papillomavirus (HPV). As for bacterial records, SGSS generally recorded more infections, both in terms of the number of distinct taxa and the number of cases of each. Some important exceptions bucked this trend, notably Mycobacterium tuberculosis (45 vs 385 records; 36 vs 181 participants) and Helicobacter pylori (16 vs 22,52 records; 15 vs 2,245 participants), where HES recorded more infections than SGSS. We found only five pathogen species present in both SGSS and HES and eligible for GWAS., For all five organisms, linkage to SGSS records identified more cases than linkage to HES records.
+
+
+\newgeometry{left=3cm, right=3cm}
+\begin{longtblr}[
+    caption = {test}
+]{
+  width = \textwidth,
+  colspec = {Q[c,m,2]X[c,m,1]X[c,m,1]X[3]},
+  row{1} = {font=\bfseries},
+  rowsep = 3pt,
+  rowhead = 1,
+}
+\textbf{Pathogen} & \textbf{No. SGSS cases} & \textbf{No. SGSS genome-wide hits} & \textbf{Common pathologies}\\
+\hline
+\textit{Pseudomonas aeruginosa}       & 5762                    & 0                                  & Variety of complex infections and lung infection in cystic fibrosis patients \\
+\textit{Enterococcus faecalis}        & 3444                    & 2                                  & urinary tract infection  (UTI) in elderly men and women                      \\
+\textit{Proteus mirabilis}            & 2987                    & 0                                  & complicated urinary tract infections                                         \\
+\textit{Moraxella catarrhalis}        & 1807                    & 0                                  & otitis media, sinusitis                                                      \\
+\textit{Enterobacter cloacae}         & 1470                    & 0                                  & urinary and respiratory tracts infection                                     \\
+\textit{Klebsiella oxytoca}           & 1446                    & 2                                  & intra-abdominal or blood stream infections                                   \\
+\textit{Citrobacter koseri}           & 1371                    & 1                                  & Intra-abdominal or blood stream infections, cerebritis, brain abscesses      \\
+\textit{Enterococcus faecium}         & 968                     & 0                                  & endocarditis                                                                 \\
+\textit{Serratia marcescens}          & 963                     & 0                                  & respiratory infection and UTI of hospitalized adults                         \\
+\textit{Morganella morganii}          & 776                     & 0                                  & hospital acquired UTI                                                        \\
+\textit{Streptococcus intermedius}    & 693                     & 0                                  & periodontitis, brain and liver abscesses                                     \\
+\textit{Citrobacter freundii}         & 691                     & 0                                  & UTI, sepsis                                                                  \\
+\textit{Campylobacter jejuni}         & 646                     & 0                                  & gastroenteritis                                                              \\
+\textit{Klebsiella aerogenes}         & 549                     & 0                                  & Intra-abdominal or blood stream infections                                   \\
+\textit{Candida albicans}             & 508                     & 0                                  & oropharyngeal or thrush candidiasis, endocarditis                            \\
+\textit{Stenotrophomonas maltophilia} & 457                     & 0                                  & bloodstream infections, respiratory infections, UTI                          \\
+\textit{Streptococcus milleri}        & 290                     & 1                                  & brain and liver abscesses                                                    \\
+\textit{Klebsiella variicola}         & 231                     & 1                                  & Intra-abdominal or blood stream infections                                   \\
+\textit{Haemophilus parainfluenzae}   & 224                     & 1                                  & pneumonia or bacterial endocarditis                                          \\
+\textit{Bacteroides fragilis}         & 179                     & 0                                  & opportunistic infections in wounds and bloodstream                           \\
+\textit{Corynebacterium striatum}     & 167                     & 0                                  & opportunistic infections involving prosthetic devices                        \\
+\textit{Nakaseomyces glabratus}       & 144                     & 0                                  & opportunistic pathogen that causes candidiasis                               \\
+\textit{Acinetobacter baumannii}      & 140                     & 1                                  & opportunistic pathogen, can cause sepsis                                     \\
+\textit{Cutibacterium acnes}          & 138                     & 0                                  & acne, chronic blepharitis, endophthalmitis                                   \\
+\textit{Serratia liquefaciens}        & 128                     & 0                                  & hospital-acquired infections, UTI, pneumonia, and endocarditis               \\
+\textit{Raoultella ornithinolytica}   & 120                     & 1                                  & Hospital-acquired deep infections                                            \\
+\textit{Proteus vulgaris}             & 109                     & 0                                  & wound infection, UTI, sepsis                                                 \\
+\hline
+\textbf{Total}                        & \textbf{26408}          & \textbf{10}                        & 
+\end{longtblr}
+\restoregeometry
+  
+
+\subsection{Overview of GWAS results}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
+

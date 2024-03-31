@@ -40,7 +40,6 @@ for filter_snp_f in filter_snp_fs:
     # read the file as df, and extract the SNP IDs
     filter_snp_df = pd.read_csv(filter_snp_f, sep=" ", comment="#")
     print("number of snps in the file: " + str(filter_snp_df.shape[0]))
-
     # start LD clumping
     # record index snps in a new df
     index_snps_df = pd.DataFrame(columns=filter_snp_df.columns)

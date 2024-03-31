@@ -1,0 +1,5 @@
+record_cnt	ind_cnt	tax_cnt
+all	188788	69900	155
+individual that passed QC	158951	59909	152
+species level pathogen	45568	21581	85
+pathogen with > 100 cases	44230	20955	20

@@ -176,6 +176,16 @@ get_ukb_filter <- function(bd, f_assesscentre, bd_not_lost2followup, sample_qc, 
     return(filter_lst)
 }
 
+add_sgss_tax <- function(sgssm, origin_name_to_tax) {
+    sgss$tax_lev <- map_chr(sgss$ORGANISM_SPECIES_NAME, function(origin_name) {
+                                tax_lev <- get_tax(origin_name, origin_name_to_tax)[2]
+    })
+    sgss$tax <- map_chr(sgss$ORGANISM_SPECIES_NAME, function(origin_name) {
+                            species_name <- get_tax(origin_name, origin_name_to_tax)[1]
+    })
+    return(sgss)
+}
+
 get_sgss_filter <- function(sgss, eids_filtered, origin_name_to_tax){
     # filter1: starting from all
     filter_lst <- list()
@@ -189,16 +199,10 @@ get_sgss_filter <- function(sgss, eids_filtered, origin_name_to_tax){
     names(filter_lst)[2] <- "individual that passed QC"
 
     # filter3: only include infection that have a pathogen label in species level
-    sgss$tax_lev <- map_chr(sgss$ORGANISM_SPECIES_NAME, function(origin_name) {
-                                tax_lev <- get_tax(origin_name, origin_name_to_tax)[2]
-    })
     filter_lst[[3]] <- filter_lst[[2]] & sgss$tax_lev == "species"
     names(filter_lst)[3] <- "species level pathogen"
 
     # filter4: only include pathogen that have infection cases > 100
-    sgss$tax <- map_chr(sgss$ORGANISM_SPECIES_NAME, function(origin_name) {
-                            species_name <- get_tax(origin_name, origin_name_to_tax)[1]
-    })
     species_name_qc <- unique(sgss$tax[filter_lst[[3]]])
     # get the frequency of each species by the number of unique individuals
     species_name_freq <- map_int(species_name_qc, function(species_name) {
@@ -261,6 +265,18 @@ get_pathogen <- function(icd10, icd2path) {
     return(icd2path[[icd10]])
 }
 
+add_hes_tax <- function(hes, icd_to_pathogen) {
+    hes_infect$tax_lev <- map_lgl(hes_infect$diag_icd10, function(icd10) {
+                                      tax_lev <- get_pathogen(icd10, icd_to_pathogen)[2]
+                                      return(tax_lev == "species")
+    })
+    hes_infect$tax <- map_chr(hes_infect$diag_icd10, function(icd10) {
+                                  species_name <- get_pathogen(icd10, icd_to_pathogen)[1]
+                                  return(species_name)  
+    })
+    return(hes)
+}
+
 get_hes_filter <- function(icd_to_pathogen, hes_infect, eids_filtered){
     # filter1: starting from all
     filter_lst <- list()
@@ -273,18 +289,10 @@ get_hes_filter <- function(icd_to_pathogen, hes_infect, eids_filtered){
     names(filter_lst)[2] <- "individual that passed QC"
 
     #filter3: only include infection that have a pathogen label in species level
-    hes_infect$tax_lev <- map_lgl(hes_infect$diag_icd10, function(icd10) {
-                                      tax_lev <- get_pathogen(icd10, icd_to_pathogen)[2]
-                                      return(tax_lev == "species")
-    })
     filter_lst[[3]] <- filter_lst[[2]] & hes_infect$tax_lev
     names(filter_lst)[3] <- "species level pathogen"
 
     # filter4: only include pathogen that have infection cases > 100
-    hes_infect$tax <- map_chr(hes_infect$diag_icd10, function(icd10) {
-                                  species_name <- get_pathogen(icd10, icd_to_pathogen)[1]
-                                  return(species_name)  
-    })
     species_name_qc <- unique(hes_infect$tax[filter_lst[[3]]])
     # get the frequency of each species by the number of unique individuals
     species_name_freq <- map_int(species_name_qc, function(species_name) {
@@ -348,9 +356,10 @@ write.table(all_filter, file = "ukb_filter_summary.tsv", sep = "\t", quote = FAL
 ##############
 # for SGSS ##
 ##############
-filter_lst <- get_sgss_filter(sgss, eids_filtered, origin_name_to_tax)
-# create a dictionary from origin_name to most specific taxa
+
 origin_name_to_tax <- build_origin_name_to_tax()
+sgss <- add_sgss_tax(sgss) # add columns for tax level and species names
+filter_lst <- get_sgss_filter(sgss, eids_filtered, origin_name_to_tax)
 
 sgss_filter_table <- list()
 for(i in 1:length(filter_lst)) {
@@ -364,6 +373,7 @@ sgss_filter_table <- do.call(rbind, sgss_filter_table)
 rownames(sgss_filter_table) <- names(filter_lst)
 colnames(sgss_filter_table) <- c("record_cnt", "ind_cnt", "tax_cnt")
 sgss_filter_table
+#%%
 
 # save the table
 sgss_outfile <- paste0(outdir, "sgss_filter_summary.tsv")
@@ -415,8 +425,10 @@ for(cur_species in gwas_tax){
     }
 }
 
+#%%
 # For HES
 icd_to_pathogen <- build_icd_to_pathogen()
+hes <- add_hes_tax(hes_infect, icd_to_pathogen)
 filter_lst <- get_hes_filter(icd_to_pathogen, hes_infect, eids_filtered)
 
 # gather the filter into a table
@@ -433,6 +445,7 @@ rownames(hes_filter_table) <- names(filter_lst)
 colnames(hes_filter_table) <- c("record_cnt", "ind_cnt", "tax_cnt")
 hes_filter_table
 
+#%%
 # save the table
 hes_outfile <- paste0(outdir, "hes_filter_summary.tsv")
 write.table(hes_filter_table, file = hes_outfile, sep = "\t", quote = FALSE)

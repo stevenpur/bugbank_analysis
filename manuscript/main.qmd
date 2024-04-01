@@ -2,6 +2,9 @@
 title: Assessing the value of linking public health microbiology data to the UK Biobank
 bibliography: references.bib
 ---
+```{r setup}
+reticulate::use_condaenv("gwas_regenie", required = TRUE)
+```
 
 ## Introduction
 Infectious diseases have been one of the major causes of mortality worldwide, especially in children in developing countries. It is estimated that eight major infections (acquired immunodeficiency syndrome (AIDS), malaria, measles, hepatitis, dengue fever, rabies, tuberculosis and, yellow fever) caused more than 156 million deaths and put a burden of eight trillion dollars on the global economy in the year of 2016 (D. E. Bloom et al. 2020). The emergence of COVID-19 has further shed light on the importance and urgency of the study of infectious diseases comment::cite::. Infections are the results of complex interactions between hosts, pathogens, and environments. A major challenge of conducting comprehensive studies on infectious diseases is therefore considering the dynamics of all three factors. Another major challenge of studying infectious diseases in public health is the lack of statistical power as regions that have the infrastructure for comprehensive infection records collection are often also low in infectious disease prevalence comment::cite::. For example, only 4\% of human genome-wide association studies (GWAS) entries in the GWAS catalog (MacArthur et al., 2017) pertain to infectious diseases, contributing a mere 2.5\% to the total distinct variant-trait associations (Mozzi et al. 2018).
@@ -13,3 +16,39 @@ UK Biobank is a large-scale prospective cohort study. It collects in-depth bioma
 ### Second Generation Surveillance Systems
 The Second Generation Surveillance System (SGSS) is a national laboratory reporting system used by Public Health England (PHE; now UKHSA, the United Kingdom Health Security Agency) to capture routine laboratory data on infectious diseases and antimicrobial resistance in England. Since October 2010, diagnostic laboratories in England have been required to report microbiological test results involving human pathogens to PHE (UK Health Security Agency 2022). SGSS is the system/database through which the data of bacterial isolations and antimicrobial resistance from English laboratories are centralized, stored and managed by PHE. It contains detailed information on all positive microbiological isolates (microbial cultures) on which antimicrobial susceptibility testing is performed. Compared to infectious episodes recorded in HES, SGSS records provide a more granular and specific diagnosis of microbiologically-confirmed infection that includes both hospital patients and patients outside hospitals from whom general practitioners (family doctors) have taken specimens. SGSS provides information on specimen type (e.g. blood culture, urine sample), which is indicative of the likely infection site and severity, as blood culture positivity is a highly specific feature of severe infection (septicaemia). However, in contrast to UKB, SGSS lacks detailed information about the infected hosts.
 
+### Linkage between UK Biobank and SGSS
+During COVID-19, a dynamic linkage has been developed to link SARS-CoV-2 test results in SGSS to host data in UK Biobank (Armstrong et al. 2020), allowing for investigation of health, lifestyles and genetic risk factors for COVID-19 in the UKB cohort since as early as May 2020 (Hamer et al. 2020; Kuo et al. 2020; Yates et al. 2020). Recently, the feasibility of expanding such linkage to all microbial isolation recorded in SGSS has been established comment::cite::. While linkage presents an unprecedented opportunity to enhance the infection data in UK Biobank, the value of such linkage has not been assessed. In this study, we use GWAS as a tool to explore the value of the added pathogen information and infection records from SGSS linkage. We collaborated with UKB and PHE/UKHSA and conducted pathogen-specific GWAS on non-COVID19 infection records available in SGSS linkage and HES respectively. Additionally, we also conducted pathogen-specific and specimen-specific GWAS on SGSS-linked infection records. We then compare the GWAS results between HES and SGSS-linked infection records to investigate if the linkage of SGSS can enhance infection research in UKB.
+
+## Results
+```{r}
+# load data
+ukb_filter_f <- "/well/bag/clme1992/bugbank_data/ukb_filter_summary.tsv"
+sgss_filter_f <- "/well/bag/clme1992/bugbank_data/sgss_filter_summary.tsv"
+hes_filter_f <- "/well/bag/clme1992/bugbank_data/hes_filter_summary.tsv"
+
+ukb_filter <- read.table(ukb_filter_f, header=TRUE, sep="\t")
+sgss_filter <- read.table(sgss_filter_f, header=TRUE, sep="\t")
+hes_filter <- read.table(hes_filter_f, header=TRUE, sep="\t")
+
+# format numbers
+show_num <- function(x) {
+  format(as.numeric(x), big.mark=",")
+}
+show_perc <- function(x) {
+  paste0(round(as.numeric(x)*100, 1), "%")
+}
+
+# initialize nunber for later used
+sgss_drop <- sgss_filter[1, ] - sgss_filter[nrow(sgss_filter), ]
+hes_drop <- hes_filter[1, ] - hes_filter[nrow(hes_filter), ]
+```
+### Comparison of total UKB infections in SGSS and HES
+As of November 2021, there were `{r} show_num(sgss_filter['all', 'record_cnt'])` infection records in SGSS linked to `{r} show_num(sgss_filter['all', 'ind_cnt'])` UKB participants and `{r} show_num(sgss_filter['all', 'tax_cnt'])` distinct pathogen taxa, not considering cases of SARS-CoV-2. These records covered the time period 2000 to 2021 and increased in frequency steadily over time from 2008 until 2019 (Figure 4.3; Hilton et al. 2020). The number of records fell slightly in 2020, presumably due to COVID-19 comment::cite paper reporting reduction in infection during this time::. In 2021 there were fewer records compared to previous years due to the year being incomplete at the time the analysis was conducted. In comparison, we identified `{r} show_num(hes_filter['all', 'record_cnt'])` HES-linked infection records corresponding to `{r} show_num(hes_filter['all', 'ind_cnt'])` UKB participants and `{r} show_num(hes_filter['all', 'tax_cnt'])` distinct pathogen taxa. After applying steps of quality control described in methods, selecting taxa level specify to the species level, and taxa with 100 infection cases, `{r} show_num(sgss_drop[['record_cnt']])` (`{r} show_perc(sgss_drop[['record_cnt']]/sgss_filter['all', 'record_cnt'])`) records were removed from SGSS and `{r} show_num(hes_drop[['record_cnt']])` (`{r} show_perc(hes_drop[['record_cnt']]/hes_filter['all', 'record_cnt'])`) records were removed from HES for GWAS (Figure 4.2). This results in `{r} sgss_filter$record_cnt[nrow(sgss_filter)]` vs `{r} hes_filter$record_cnt[nrow(hes_filter)]` infection records (`{r} show_num(sgss_filter$ind_cnt[nrow(sgss_filter)])` vs `{r} show_num(hes_filter$ind_cnt[nrow(hes_filter)])` UKB participants and `{r} sgss_filter$tax_cnt[nrow(sgss_filter)]` vs `{r} hes_filter$tax_cnt[nrow(hes_filter)]` pathogen taxa) eligible to be included for GWAS for SGSS-linked and HES.
+<br/> 
+```{r}
+gwasdata_f <- "/users/bag/hlq763/saige_pipe_test/ukb41482.bd.gwasdata.05062023_sgss_species.txt"
+gwasdata <- read.table(gwasdata_f, header=TRUE, sep="\t")
+tb_f <- 
+hp_f <- 
+```
+There were differences in the composition of infectious organisms identified by linkage to SGSS vs HES. Records in SGSS mainly relate to microbiological culture-based tests, with the notable exception of SARS-CoV-2. Consequently, virus-related records were almost exclusively available through HES, including important pathogens such as human immunodeficiency virus (HIV) and human papillomavirus (HPV).comment::this part needs to be rephrased given that virus records are in SGSS, but in a different table:: As for bacterial records, SGSS generally recorded more infections, both in terms of the number of distinct taxa and the number of cases of each. Some important exceptions bucked this trend, notably Mycobacterium tuberculosis (45 vs 385 records; 36 vs 181 participants) and Helicobacter pylori (16 vs 22,52 records; 15 vs 2,245 participants), where HES-linked infection recorded more infections than SGSS-linked infection. We found only five pathogen species present in both SGSS and HES with more than 100 infection cases. For all five organisms, linkage to SGSS records identified more cases than linkage to HES records.

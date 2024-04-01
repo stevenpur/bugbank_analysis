@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-<script src="main_files/libs/clipboard/clipboard.min.js"></script>
-<script src="main_files/libs/quarto-html/quarto.js"></script>
-<script src="main_files/libs/quarto-html/popper.min.js"></script>
-<script src="main_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="main_files/libs/quarto-html/anchor.min.js"></script>
-<link href="main_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="main_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="main_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="main_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="main_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><meta charset="utf-8">
+
+<meta charset="utf-8">
 <meta name="generator" content="quarto-1.4.552">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -27,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -80,6 +106,46 @@ ul.task-list li input[type="checkbox"] {
 <section id="second-generation-surveillance-systems" class="level3">
 <h3 class="anchored" data-anchor-id="second-generation-surveillance-systems">Second Generation Surveillance Systems</h3>
 <p>The Second Generation Surveillance System (SGSS) is a national laboratory reporting system used by Public Health England (PHE; now UKHSA, the United Kingdom Health Security Agency) to capture routine laboratory data on infectious diseases and antimicrobial resistance in England. Since October 2010, diagnostic laboratories in England have been required to report microbiological test results involving human pathogens to PHE (UK Health Security Agency 2022). SGSS is the system/database through which the data of bacterial isolations and antimicrobial resistance from English laboratories are centralized, stored and managed by PHE. It contains detailed information on all positive microbiological isolates (microbial cultures) on which antimicrobial susceptibility testing is performed. Compared to infectious episodes recorded in HES, SGSS records provide a more granular and specific diagnosis of microbiologically-confirmed infection that includes both hospital patients and patients outside hospitals from whom general practitioners (family doctors) have taken specimens. SGSS provides information on specimen type (e.g.&nbsp;blood culture, urine sample), which is indicative of the likely infection site and severity, as blood culture positivity is a highly specific feature of severe infection (septicaemia). However, in contrast to UKB, SGSS lacks detailed information about the infected hosts.</p>
+</section>
+<section id="linkage-between-uk-biobank-and-sgss" class="level3">
+<h3 class="anchored" data-anchor-id="linkage-between-uk-biobank-and-sgss">Linkage between UK Biobank and SGSS</h3>
+<p>During COVID-19, a dynamic linkage has been developed to link SARS-CoV-2 test results in SGSS to host data in UK Biobank (Armstrong et al.&nbsp;2020), allowing for investigation of health, lifestyles and genetic risk factors for COVID-19 in the UKB cohort since as early as May 2020 (Hamer et al.&nbsp;2020; Kuo et al.&nbsp;2020; Yates et al.&nbsp;2020). Recently, the feasibility of expanding such linkage to all microbial isolation recorded in SGSS has been established comment::cite::. While linkage presents an unprecedented opportunity to enhance the infection data in UK Biobank, the value of such linkage has not been assessed. In this study, we use GWAS as a tool to explore the value of the added pathogen information and infection records from SGSS linkage. We collaborated with UKB and PHE/UKHSA and conducted pathogen-specific GWAS on non-COVID19 infection records available in SGSS linkage and HES respectively. Additionally, we also conducted pathogen-specific and specimen-specific GWAS on SGSS-linked infection records. We then compare the GWAS results between HES and SGSS-linked infection records to investigate if the linkage of SGSS can enhance infection research in UKB.</p>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load data</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ukb_filter_f <span class="ot">&lt;-</span> <span class="st">"/well/bag/clme1992/bugbank_data/ukb_filter_summary.tsv"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>sgss_filter_f <span class="ot">&lt;-</span> <span class="st">"/well/bag/clme1992/bugbank_data/sgss_filter_summary.tsv"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>hes_filter_f <span class="ot">&lt;-</span> <span class="st">"/well/bag/clme1992/bugbank_data/hes_filter_summary.tsv"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>ukb_filter <span class="ot">&lt;-</span> <span class="fu">read.table</span>(ukb_filter_f, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sgss_filter <span class="ot">&lt;-</span> <span class="fu">read.table</span>(sgss_filter_f, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>hes_filter <span class="ot">&lt;-</span> <span class="fu">read.table</span>(hes_filter_f, <span class="at">header=</span><span class="cn">TRUE</span>, <span class="at">sep=</span><span class="st">"</span><span class="sc">\t</span><span class="st">"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># format numbers</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>show_num <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(<span class="fu">as.numeric</span>(x), <span class="at">big.mark=</span><span class="st">","</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>show_perc <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="fu">round</span>(<span class="fu">as.numeric</span>(x)<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize nunber for later used</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>sgss_drop <span class="ot">&lt;-</span> sgss_filter[<span class="dv">1</span>, ] <span class="sc">-</span> sgss_filter[<span class="fu">nrow</span>(sgss_filter), ]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>hes_drop <span class="ot">&lt;-</span> hes_filter[<span class="dv">1</span>, ] <span class="sc">-</span> hes_filter[<span class="fu">nrow</span>(hes_filter), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="comparison-of-total-ukb-infections-in-sgss-and-hes" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-of-total-ukb-infections-in-sgss-and-hes">Comparison of total UKB infections in SGSS and HES</h3>
+<p>As of November 2021, there were 350,699 infection records in SGSS linked to 114,737 UKB participants and 526 distinct pathogen taxa, not considering cases of SARS-CoV-2. These records covered the time period 2000 to 2021 and increased in frequency steadily over time from 2008 until 2019 (Figure 4.3; Hilton et al.&nbsp;2020). The number of records fell slightly in 2020, presumably due to COVID-19 comment::cite paper reporting reduction in infection during this time::. In 2021 there were fewer records compared to previous years due to the year being incomplete at the time the analysis was conducted. In comparison, we identified 188,788 HES-linked infection records corresponding to 69,900 UKB participants and 155 distinct pathogen taxa. After applying steps of quality control described in methods, selecting taxa level specify to the species level, and taxa with 100 infection cases, 127,332 (36.3%) records were removed from SGSS and 153,284 (81.2%) records were removed from HES for GWAS (Figure 4.2). This results in 223367 vs 35504 infection records (81,874 vs 17,386 UKB participants and 32 vs 18 pathogen taxa) eligible to be included for GWAS for SGSS-linked and HES. //</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"hello"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "hello"</code></pre>
+</div>
+</div>
+<p>There were differences in the composition of infectious organisms identified by linkage to SGSS vs HES. Records in SGSS mainly relate to microbiological culture-based tests, with the notable exception of SARS-CoV-2. Consequently, virus-related records were almost exclusively available through HES, including important pathogens such as human immunodeficiency virus (HIV) and human papillomavirus (HPV).comment::this part needs to be rephrased given that virus records are in SGSS, but in a different table:: As for bacterial records, SGSS generally recorded more infections, both in terms of the number of distinct taxa and the number of cases of each. Some important exceptions bucked this trend, notably Mycobacterium tuberculosis (45 vs 385 records; 36 vs 181 participants) and Helicobacter pylori (16 vs 22,52 records; 15 vs 2,245 participants), where HES-linked infection recorded more infections than SGSS-linked infection. We found only five pathogen species present in both SGSS and HES with more than 100 infection cases. For all five organisms, linkage to SGSS records identified more cases than linkage to HES records.</p>
 </section>
 </section>
 
